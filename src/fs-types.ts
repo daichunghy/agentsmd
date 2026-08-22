@@ -1,0 +1,46 @@
+import { existsSync, readFileSync, readdirSync, type Stats } from "node:fs";
+
+export interface FileReader {
+  /** UTF-8 content of a file, or undefined when it does not exist. */
+  readUtf8(path: string): string | undefined;
+  /** Raw bytes of a file, or undefined when it does not exist. */
+  readBytes(path: string): Uint8Array | undefined;
+  /** True when the path exists as a file or as a directory. */
+  exists(path: string): boolean;
+  /** Direct child names of a directory, sorted; undefined for missing paths. */
+  listDir(path: string): string[] | undefined;
+}
+
+/** Real filesystem implementation. */
+export class RealFs implements FileReader {
+  readUtf8(path: string): string | undefined {
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      return undefined;
+    }
+  }
+
+  readBytes(path: string): Uint8Array | undefined {
+    try {
+      return new Uint8Array(readFileSync(path));
+    } catch {
+      return undefined;
+    }
+  }
+
+  exists(path: string): boolean {
+    return existsSync(path);
+  }
+
+  listDir(path: string): string[] | undefined {
+    try {
+      return readdirSync(path).sort();
+    } catch {
+      return undefined;
+    }
+  }
+}
+
+/** Type-only helper so stats stay unused until a caller needs them. */
+export type { Stats };
