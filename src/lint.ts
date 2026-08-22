@@ -6,6 +6,8 @@ import { deadCommandRule } from "./rules/dead-command.js";
 import { deadPathRule } from "./rules/dead-path.js";
 import { runRules } from "./rules/registry.js";
 import type { Finding, Rule, RuleContext } from "./rules/types.js";
+import { claudeUnmanagedRule, stubRule } from "./targets/claude.js";
+import { geminiUnwiredRule } from "./targets/gemini.js";
 
 /** Rules active in this build; grows as tasks land. */
 export const ACTIVE_RULES: Rule[] = [
@@ -13,6 +15,9 @@ export const ACTIVE_RULES: Rule[] = [
   deadCommandRule,
   codexBudgetRule,
   claudeLengthRule,
+  stubRule,
+  claudeUnmanagedRule,
+  geminiUnwiredRule,
 ];
 
 export function lint(ctx: RuleContext): Finding[] {
