@@ -1,5 +1,10 @@
 # Independent improvement audit — agentsmd
 
+**Superseded in part:** later commits on local `main` added community files,
+dropped the npm badge, pinned the Action to `@main`, and skipped root
+`fixtures/`. Keep this file as the day-0 snapshot; do not treat its
+“missing community files / `@v0`” rows as the current tree.
+
 **Date:** 2026-08-22  
 **Scope:** `/Users/macos/Desktop/agentsmd` vs spec `docs/superpowers/specs/2026-08-22-agentsmd-mvp-design.md` and GTM `docs/launch/2026-08-22-gtm-strategy.md`  
 **Method:** read `src/`, `test/`, `action.yml`, `package.json`, fixtures, GitHub API, npm registry. No invented files.  

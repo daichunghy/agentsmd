@@ -5,15 +5,23 @@
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Status:** public alpha (`0.1.0-alpha.1`). Not a Codex-for-OSS selection
-claim and not a statement of program eligibility.
+**Status:** public alpha (`0.1.0-alpha.1`). Not on npm yet.
+
+Until the package is published, clone and build (needs a git repo):
+
+```sh
+git clone https://github.com/daichunghy/agentsmd.git
+cd agentsmd
+npm install
+npm run build
+node dist/main.js doctor
+```
+
+Intended later (will fail on a clean machine today):
 
 ```sh
 npx agentsmd doctor
 ```
-
-The npm registry package is not published yet; clone this repo and run
-`npm pack` or `node dist/main.js` until it is.
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
 the Copilot agent read `AGENTS.md`, Claude Code reads `CLAUDE.md`, Gemini CLI
@@ -45,12 +53,16 @@ agentsmd keeps `AGENTS.md` the single source, then:
 ## 🚀 Quick start
 
 ```sh
-npx agentsmd init            # starter AGENTS.md (git repo required)
-npx agentsmd doctor          # see what each agent tool reads today
-npx agentsmd sync            # wire Claude Code + Gemini CLI to AGENTS.md
-npx agentsmd lint            # find rot
-npx agentsmd score           # 0–100 instruction health
+node dist/main.js init            # starter AGENTS.md (git repo required)
+node dist/main.js doctor          # see what each agent tool reads today
+node dist/main.js sync            # wire Claude Code + Gemini CLI to AGENTS.md
+node dist/main.js lint            # find rot
+node dist/main.js score           # 0–100 instruction health
 ```
+
+After `npm install && npm run build`. `npx agentsmd …` is the same once the
+registry package exists. Commands other than `--help`/`--version` need a git
+repository.
 
 `init --config` also writes `agentsmd.config.json` when missing.
 `init --force` overwrites those files with the starter. `sync` still

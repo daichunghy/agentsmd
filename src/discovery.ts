@@ -26,7 +26,8 @@ export interface RepoInventory {
 
 /** Walk up from cwd until a directory containing `.git` is found. */
 export function findRepoRoot(fs: FileReader, cwd: string): string | undefined {
-  const parts = cwd === "" ? [] : cwd.split("/");
+  const normalized = cwd.replace(/\\/g, "/");
+  const parts = normalized === "" ? [] : normalized.split("/");
   for (let i = parts.length; i >= 0; i--) {
     const candidate = parts.slice(0, i).join("/");
     if (fs.exists(join(candidate, ".git"))) return candidate;
@@ -34,15 +35,10 @@ export function findRepoRoot(fs: FileReader, cwd: string): string | undefined {
   return undefined;
 }
 
-const SKIP_DIRS = new Set([
-  ".git",
-  "node_modules",
-  "dist",
-  ".agentsmd-tmp",
-  "fixtures",
-  "coverage",
-  "action-dist",
-]);
+/** Skip at every depth. */
+const SKIP_DIRS = new Set([".git", "node_modules", "dist", ".agentsmd-tmp"]);
+/** Skip only when the directory is at the repository root. */
+const SKIP_ROOT_DIRS = new Set(["fixtures", "coverage", "action-dist"]);
 
 /** Build the full inventory of agent-instruction files for the repo. */
 export function buildInventory(
@@ -121,6 +117,7 @@ function walk(
     const rel = dir === "" ? name : `${dir}/${name}`;
     if (fs.listDir(join(root, rel)) !== undefined) {
       if (SKIP_DIRS.has(name)) continue;
+      if (dir === "" && SKIP_ROOT_DIRS.has(name)) continue;
       walk(fs, root, rel, out);
     } else {
       out.push(rel);

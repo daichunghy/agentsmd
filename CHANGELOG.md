@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Root-only skip for `fixtures` / `coverage` / `action-dist` so nested
+  `pkg/fixtures/AGENTS.md` is still inventoried
+- Clone-first README (`npm install && npm run build`) until npm publish
+- `findRepoRoot` accepts backslash cwd segments
+
 ### Added
 
 - `agentsmd init [--json] [--config] [--force]` scaffolds a short root
@@ -40,5 +47,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deterministic JSON reports and score schema `1.0.0`
 - Eleven lint rules (dead paths/commands, sprawl, budgets, hygiene)
 
-[Unreleased]: https://github.com/daichunghy/agentsmd/compare/v0.1.0-alpha.1...HEAD
-[0.1.0-alpha.1]: https://github.com/daichunghy/agentsmd/releases/tag/v0.1.0-alpha.1
+[Unreleased]: https://github.com/daichunghy/agentsmd/commits/main
+[0.1.0-alpha.1]: https://github.com/daichunghy/agentsmd/commits/main

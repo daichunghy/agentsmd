@@ -56,19 +56,30 @@ describe("buildInventory", () => {
     expect(inv.instructionFiles).not.toContain(".cursor/rules/a.mdc");
   });
 
-  it("skips fixtures, coverage, and action-dist trees", () => {
+  it("skips root fixtures/coverage/action-dist but not nested fixtures or test/", () => {
     const fs = new MemFs({
       ".git/config": "",
       "AGENTS.md": "# root\n",
       "fixtures/x/AGENTS.md": "see `missing/path.ts`\n",
       "coverage/AGENTS.md": "see `also/missing.ts`\n",
       "action-dist/AGENTS.md": "see `nope.ts`\n",
+      "pkg/fixtures/AGENTS.md": "# keep nested\n",
+      "test/AGENTS.md": "# keep test\n",
     });
     const skipped = buildInventory(fs, "", "");
-    expect(skipped.agentsFiles.map((a) => a.rel)).toEqual(["AGENTS.md"]);
+    expect(skipped.agentsFiles.map((a) => a.rel)).toEqual([
+      "AGENTS.md",
+      "pkg/fixtures/AGENTS.md",
+      "test/AGENTS.md",
+    ]);
     const findings = lint({ fs, inv: skipped });
     expect(findings.some((f) => f.file.startsWith("fixtures/"))).toBe(false);
     expect(findings.some((f) => f.ruleId === "dead-path")).toBe(false);
+  });
+
+  it("finds .git when cwd uses backslashes", () => {
+    const fs = new MemFs(TREE);
+    expect(findRepoRoot(fs, "pkg\\src")).toBe("");
   });
 });
 

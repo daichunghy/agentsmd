@@ -59,6 +59,8 @@ Options:
   --force    Overwrite AGENTS.md and/or config with the starter
   --json     Canonical JSON: { "skipped": [...], "wrote": [...] }
   -h, --help Show this help
+
+Exit 0 on write or skip; 2 when not in a git repository.
 `;
 
 const LINT_HELP = `\
@@ -100,6 +102,9 @@ Options:
   --adopt         Wrap an existing unmanaged CLAUDE.md
   --copilot-copy  Write a managed .github/copilot-instructions.md
   -h, --help      Show this help
+
+Exit 0 on success (including the unmanaged CLAUDE.md hint);
+2 when not in a git repository or config is invalid. Sync never exits 1.
 `;
 
 const SCORE_HELP = `\
@@ -112,7 +117,8 @@ Options:
   -h, --help Show this help
 
 Exit 0 when findings are below fail-on (default: error);
-1 when findings meet the threshold; 2 when not in a git repository.
+1 when findings meet the threshold; 2 when not in a git repository
+or config is invalid.
 `;
 
 export async function runCli(argv: string[]): Promise<number> {
@@ -169,6 +175,9 @@ function initCommand(args: string[]): number {
     for (const rel of result.wrote) process.stdout.write(`wrote ${rel}\n`);
     for (const rel of result.skipped) {
       process.stdout.write(`${rel} already exists\n`);
+    }
+    if (result.wrote.includes("AGENTS.md")) {
+      process.stdout.write("next: agentsmd doctor\n");
     }
   }
   return 0;

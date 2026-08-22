@@ -19907,22 +19907,16 @@ function join(root, rel) {
 
 // src/discovery.ts
 function findRepoRoot(fs, cwd) {
-  const parts = cwd === "" ? [] : cwd.split("/");
+  const normalized = cwd.replace(/\\/g, "/");
+  const parts = normalized === "" ? [] : normalized.split("/");
   for (let i = parts.length; i >= 0; i--) {
     const candidate = parts.slice(0, i).join("/");
     if (fs.exists(join2(candidate, ".git"))) return candidate;
   }
   return void 0;
 }
-var SKIP_DIRS = /* @__PURE__ */ new Set([
-  ".git",
-  "node_modules",
-  "dist",
-  ".agentsmd-tmp",
-  "fixtures",
-  "coverage",
-  "action-dist"
-]);
+var SKIP_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", ".agentsmd-tmp"]);
+var SKIP_ROOT_DIRS = /* @__PURE__ */ new Set(["fixtures", "coverage", "action-dist"]);
 function buildInventory(fs, root, cwdRel) {
   const agentsFiles = [];
   const overrideFiles = [];
@@ -19979,6 +19973,7 @@ function walk(fs, root, dir, out) {
     const rel = dir === "" ? name : `${dir}/${name}`;
     if (fs.listDir(join2(root, rel)) !== void 0) {
       if (SKIP_DIRS.has(name)) continue;
+      if (dir === "" && SKIP_ROOT_DIRS.has(name)) continue;
       walk(fs, root, rel, out);
     } else {
       out.push(rel);
