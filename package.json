@@ -47,7 +47,7 @@
     "context-engineering"
   ],
   "devDependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^3.0.1",
     "@types/node": "^26.0.0",
     "esbuild": "^0.25.12",
     "typescript": "^5.9.3",
