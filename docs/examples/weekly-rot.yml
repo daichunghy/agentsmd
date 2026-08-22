@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: daichunghy/agentsmd@main
+      - uses: daichunghy/agentsmd@v0.1.0-alpha.2
         with:
           fail-on: warning
           badge-write: false

@@ -1,8 +1,13 @@
 {
   "name": "agentsmd",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "One source of truth for AI agent instructions — linted, wired, scored.",
   "license": "MIT",
+  "author": "daichunghy",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/daichunghy/agentsmd.git"
@@ -31,6 +36,7 @@
     "build:action": "esbuild src/action/index.ts --bundle --platform=node --target=node20 --outfile=action-dist/index.js",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build",
     "verify": "npm run typecheck && npm run build && npm run build:action && npm run test"
   },
   "keywords": [

@@ -34,12 +34,13 @@ export function lint(ctx: RuleContext): Finding[] {
 export function contextFromCwd(
   fs: FileReader,
   cwd: string,
+  configPath?: string,
 ): { ctx: RuleContext } | { error: string } {
   const root = findRepoRoot(fs, cwd);
   if (root === undefined) {
     return { error: "not inside a git repository" };
   }
   const cwdRel = cwd === root ? "" : cwd.slice(root.length).replace(/^\//, "");
-  const inv = buildInventory(fs, root, cwdRel);
+  const inv = buildInventory(fs, root, cwdRel, configPath ?? "agentsmd.config.json");
   return { ctx: { fs, inv } };
 }

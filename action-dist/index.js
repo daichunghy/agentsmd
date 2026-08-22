@@ -19850,11 +19850,18 @@ var ConfigError = class extends Error {
 var DEFAULT_CONFIG = {
   failOn: "error",
   budgets: { codexChainBytes: 32768 },
-  rules: {}
+  rules: {},
+  ignore: []
 };
-function loadConfig(fs, root) {
-  const raw = fs.readUtf8(join(root, "agentsmd.config.json"));
-  if (raw === void 0) return structuredClone(DEFAULT_CONFIG);
+function loadConfig(fs, root, filename = "agentsmd.config.json") {
+  if (filename.includes("\0") || filename.startsWith("/") || filename.includes("..")) {
+    throw new ConfigError("config path must be a repository-relative file");
+  }
+  const raw = fs.readUtf8(join(root, filename));
+  if (raw === void 0) {
+    if (filename === "agentsmd.config.json") return structuredClone(DEFAULT_CONFIG);
+    throw new ConfigError(`${filename} was not found`);
+  }
   let parsed;
   try {
     parsed = JSON.parse(raw);
@@ -19899,6 +19906,13 @@ function loadConfig(fs, root) {
       cfg.rules[id] = sev;
     }
   }
+  if (obj["ignore"] !== void 0) {
+    const ignore = obj["ignore"];
+    if (!Array.isArray(ignore) || ignore.some((item) => typeof item !== "string")) {
+      throw new ConfigError("ignore must be an array of strings");
+    }
+    cfg.ignore = ignore.map((item) => item.replace(/\\/g, "/").replace(/\/+$/, ""));
+  }
   return cfg;
 }
 function join(root, rel) {
@@ -19917,13 +19931,14 @@ function findRepoRoot(fs, cwd) {
 }
 var SKIP_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", ".agentsmd-tmp"]);
 var SKIP_ROOT_DIRS = /* @__PURE__ */ new Set(["fixtures", "coverage", "action-dist"]);
-function buildInventory(fs, root, cwdRel) {
+function buildInventory(fs, root, cwdRel, configFile = "agentsmd.config.json") {
   const agentsFiles = [];
   const overrideFiles = [];
   const cursorRules = [];
   const copilotPathInstructions = [];
+  const config = loadConfig(fs, root, configFile);
   const allFiles = [];
-  walk(fs, root, "", allFiles);
+  walk(fs, root, "", allFiles, config.ignore);
   for (const rel of allFiles) {
     const base = rel.split("/").pop() ?? rel;
     const dir = rel.includes("/") ? rel.slice(0, rel.lastIndexOf("/")) : "";
@@ -19963,18 +19978,25 @@ function buildInventory(fs, root, cwdRel) {
     copilotPathInstructions,
     cursorRules,
     instructionFiles,
-    config: loadConfig(fs, root)
+    config
   };
 }
-function walk(fs, root, dir, out) {
+function ignoredByConfig(rel, ignore) {
+  for (const prefix of ignore) {
+    if (prefix !== "" && (rel === prefix || rel.startsWith(`${prefix}/`))) return true;
+  }
+  return false;
+}
+function walk(fs, root, dir, out, ignore) {
   const names = fs.listDir(join2(root, dir));
   if (names === void 0) return;
   for (const name of names) {
     const rel = dir === "" ? name : `${dir}/${name}`;
+    if (ignoredByConfig(rel, ignore)) continue;
     if (fs.listDir(join2(root, rel)) !== void 0) {
       if (SKIP_DIRS.has(name)) continue;
       if (dir === "" && SKIP_ROOT_DIRS.has(name)) continue;
-      walk(fs, root, rel, out);
+      walk(fs, root, rel, out, ignore);
     } else {
       out.push(rel);
     }
@@ -20394,7 +20416,8 @@ var sprawlRule = {
     const claude = ctx.inv.claude ?? ctx.inv.claudeDot;
     const claudeManaged = claude !== void 0 && (claudeState(ctx.fs, ctx.inv) === "managed-intact" || claudeState(ctx.fs, ctx.inv) === "managed-broken");
     for (const file of ctx.inv.instructionFiles) {
-      if (file === "AGENTS.md" || file === claude) continue;
+      if (file === "AGENTS.md") continue;
+      if (claudeManaged && file === claude) continue;
       const text = ctx.fs.readUtf8(joinRel(ctx.inv.root, file));
       if (text === void 0) continue;
       const first = (text.split(/\r?\n/)[0] ?? "").trim();
@@ -20503,13 +20526,13 @@ var ACTIVE_RULES = [
 function lint(ctx) {
   return runRules(ctx, ACTIVE_RULES);
 }
-function contextFromCwd(fs, cwd) {
+function contextFromCwd(fs, cwd, configPath) {
   const root = findRepoRoot(fs, cwd);
   if (root === void 0) {
     return { error: "not inside a git repository" };
   }
   const cwdRel = cwd === root ? "" : cwd.slice(root.length).replace(/^\//, "");
-  const inv = buildInventory(fs, root, cwdRel);
+  const inv = buildInventory(fs, root, cwdRel, configPath ?? "agentsmd.config.json");
   return { ctx: { fs, inv } };
 }
 
@@ -20602,8 +20625,14 @@ function formatAnnotation(f) {
   const msg = `agentsmd ${f.ruleId}: ${f.message}`.replace(/\n/g, " ");
   return `::${f.severity} file=${f.file},line=${f.line}::${msg}`;
 }
-function actionEvaluate(workspace, failOn) {
-  const ctxOrErr = contextFromCwd(new RealFs(), workspace);
+function actionEvaluate(workspace, failOn, configPath) {
+  let ctxOrErr;
+  try {
+    ctxOrErr = contextFromCwd(new RealFs(), workspace, configPath);
+  } catch (e) {
+    if (e instanceof ConfigError) return { error: e.message };
+    throw e;
+  }
   if ("error" in ctxOrErr) return { error: ctxOrErr.error };
   const { ctx } = ctxOrErr;
   const findings = lint(ctx);
@@ -20622,8 +20651,9 @@ function main() {
     return;
   }
   const badgeWrite = core.getInput("badge-write") === "true";
+  const configPath = core.getInput("config") || void 0;
   const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
-  const result = actionEvaluate(workspace, failOnRaw);
+  const result = actionEvaluate(workspace, failOnRaw, configPath);
   if ("error" in result) {
     core.setFailed(result.error);
     return;

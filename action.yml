@@ -17,6 +17,12 @@ inputs:
       branch, for a shields.io/endpoint badge.
     required: false
     default: "false"
+  config:
+    description: >-
+      Repository-relative path to a JSON config file. Defaults to
+      agentsmd.config.json at the repo root when that file exists.
+    required: false
+    default: ""
 
 outputs:
   score:

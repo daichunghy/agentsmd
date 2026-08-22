@@ -7,6 +7,8 @@
 
 **Status:** public alpha (`0.1.0-alpha.1`). Not on npm yet.
 
+[![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
+
 Until the package is published, clone and build (needs a git repo):
 
 ```sh
@@ -113,15 +115,15 @@ Severities configurable in `agentsmd.config.json`; `fail-on` sets the CI gate.
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: daichunghy/agentsmd@main
+- uses: daichunghy/agentsmd@v0.1.0-alpha.2
   with:
     fail-on: error        # error | warning | never
     badge-write: false    # commit score.json to gh-pages for a badge
 ```
 
-No GitHub Marketplace listing or `v0` release tag yet — pin `@main` or a
-commit SHA. Annotations on the exact lines, `score` output, canonical
-`score.json`. Config is auto-loaded from repo-root `agentsmd.config.json`
+No GitHub Marketplace listing. Pin `@v0.1.0-alpha.2` or a commit SHA.
+Annotations on the exact lines, `score` output, canonical `score.json`.
+Optional `config` input; default is repo-root `agentsmd.config.json`.
 when present. See [GitHub Action usage](docs/github-action-usage.md) for
 PR checks, a weekly cron example, and pinning notes.
 

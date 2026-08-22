@@ -49,6 +49,7 @@ describe("runInit", () => {
       failOn: "error",
       budgets: { codexChainBytes: 32768 },
       rules: {},
+      ignore: [],
     });
   });
 

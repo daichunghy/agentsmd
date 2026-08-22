@@ -6,5 +6,6 @@
   "rules": {
     "todo-rot": "warning",
     "claude-length-warn": "off"
-  }
+  },
+  "ignore": []
 }

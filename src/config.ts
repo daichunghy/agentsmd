@@ -6,6 +6,8 @@ export interface ResolvedConfig {
   failOn: "error" | "warning";
   budgets: { codexChainBytes: number };
   rules: Record<string, Severity>;
+  /** Repo-relative prefixes skipped during discovery, e.g. `vendor/`. */
+  ignore: string[];
 }
 
 export class ConfigError extends Error {}
@@ -14,15 +16,26 @@ const DEFAULT_CONFIG: ResolvedConfig = {
   failOn: "error",
   budgets: { codexChainBytes: 32768 },
   rules: {},
+  ignore: [],
 };
 
 /**
- * Load `agentsmd.config.json` from the repo root when present and validate
- * its shape. Any invalid value raises ConfigError (mapped to exit code 2).
+ * Load a JSON config from the repo root. Default filename is
+ * `agentsmd.config.json`. Any invalid value raises ConfigError.
  */
-export function loadConfig(fs: FileReader, root: string): ResolvedConfig {
-  const raw = fs.readUtf8(join(root, "agentsmd.config.json"));
-  if (raw === undefined) return structuredClone(DEFAULT_CONFIG);
+export function loadConfig(
+  fs: FileReader,
+  root: string,
+  filename = "agentsmd.config.json",
+): ResolvedConfig {
+  if (filename.includes("\0") || filename.startsWith("/") || filename.includes("..")) {
+    throw new ConfigError("config path must be a repository-relative file");
+  }
+  const raw = fs.readUtf8(join(root, filename));
+  if (raw === undefined) {
+    if (filename === "agentsmd.config.json") return structuredClone(DEFAULT_CONFIG);
+    throw new ConfigError(`${filename} was not found`);
+  }
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
@@ -66,6 +79,13 @@ export function loadConfig(fs: FileReader, root: string): ResolvedConfig {
       }
       cfg.rules[id] = sev;
     }
+  }
+  if (obj["ignore"] !== undefined) {
+    const ignore = obj["ignore"];
+    if (!Array.isArray(ignore) || ignore.some((item) => typeof item !== "string")) {
+      throw new ConfigError("ignore must be an array of strings");
+    }
+    cfg.ignore = (ignore as string[]).map((item) => item.replace(/\\/g, "/").replace(/\/+$/, ""));
   }
   return cfg;
 }

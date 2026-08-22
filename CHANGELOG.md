@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-08-22
+
+### Added
+- Action `config` input and `ignore` prefixes in `agentsmd.config.json`
+- `score --report <path>`
+- Publish workflow (needs `NPM_TOKEN`) and `docs/publish.md`
+- Static terminal demo at `docs/examples/demo.svg`
+
+### Changed
+- Version `0.1.0-alpha.2`; Action examples pin that tag
+- Unmanaged `CLAUDE.md` can be `sprawl-duplicate` (managed stubs stay exempt)
+
 ### Fixed
 
 - Root-only skip for `fixtures` / `coverage` / `action-dist` so nested
@@ -48,4 +60,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eleven lint rules (dead paths/commands, sprawl, budgets, hygiene)
 
 [Unreleased]: https://github.com/daichunghy/agentsmd/commits/main
+[0.1.0-alpha.2]: https://github.com/daichunghy/agentsmd/releases/tag/v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/daichunghy/agentsmd/commits/main

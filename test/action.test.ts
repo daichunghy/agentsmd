@@ -34,4 +34,11 @@ describe("actionEvaluate on this repository", () => {
     expect(result.score.score).toBeLessThanOrEqual(100);
     expect(result.annotations.length).toBe(result.findings.length);
   });
+
+  it("fails closed when a custom config path is missing", () => {
+    const result = actionEvaluate(process.cwd(), "never", "does-not-exist.json");
+    expect(result).toEqual(
+      expect.objectContaining({ error: expect.stringContaining("does-not-exist.json") }),
+    );
+  });
 });

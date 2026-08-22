@@ -45,13 +45,15 @@ export function buildInventory(
   fs: FileReader,
   root: string,
   cwdRel: string,
+  configFile = "agentsmd.config.json",
 ): RepoInventory {
   const agentsFiles: AgentsFileEntry[] = [];
   const overrideFiles: string[] = [];
   const cursorRules: string[] = [];
   const copilotPathInstructions: string[] = [];
+  const config = loadConfig(fs, root, configFile);
   const allFiles: string[] = [];
-  walk(fs, root, "", allFiles);
+  walk(fs, root, "", allFiles, config.ignore);
 
   for (const rel of allFiles) {
     const base = rel.split("/").pop() ?? rel;
@@ -101,8 +103,15 @@ export function buildInventory(
     copilotPathInstructions,
     cursorRules,
     instructionFiles,
-    config: loadConfig(fs, root),
+    config,
   };
+}
+
+function ignoredByConfig(rel: string, ignore: string[]): boolean {
+  for (const prefix of ignore) {
+    if (prefix !== "" && (rel === prefix || rel.startsWith(`${prefix}/`))) return true;
+  }
+  return false;
 }
 
 function walk(
@@ -110,15 +119,17 @@ function walk(
   root: string,
   dir: string,
   out: string[],
+  ignore: string[],
 ): void {
   const names = fs.listDir(join(root, dir));
   if (names === undefined) return;
   for (const name of names) {
     const rel = dir === "" ? name : `${dir}/${name}`;
+    if (ignoredByConfig(rel, ignore)) continue;
     if (fs.listDir(join(root, rel)) !== undefined) {
       if (SKIP_DIRS.has(name)) continue;
       if (dir === "" && SKIP_ROOT_DIRS.has(name)) continue;
-      walk(fs, root, rel, out);
+      walk(fs, root, rel, out, ignore);
     } else {
       out.push(rel);
     }

@@ -44,7 +44,8 @@ export const sprawlRule: Rule = {
         claudeState(ctx.fs, ctx.inv) === "managed-broken");
 
     for (const file of ctx.inv.instructionFiles) {
-      if (file === "AGENTS.md" || file === claude) continue;
+      if (file === "AGENTS.md") continue;
+      if (claudeManaged && file === claude) continue;
       const text = ctx.fs.readUtf8(joinRel(ctx.inv.root, file));
       if (text === undefined) continue;
       const first = (text.split(/\r?\n/)[0] ?? "").trim();

@@ -4,8 +4,8 @@ The Action lints instruction files, emits workflow-command annotations,
 and writes a canonical score report. It does not run `sync`.
 
 Config is auto-loaded from repo-root `agentsmd.config.json` when that
-file exists. There is no separate `config` input; a custom path is not
-supported in this alpha.
+file exists. Optional input `config` points at another repository-relative
+JSON file.
 
 ## Inputs
 
@@ -13,6 +13,7 @@ supported in this alpha.
 | --- | --- | --- |
 | `fail-on` | `error` | `error`, `warning`, `never` |
 | `badge-write` | `false` | `true` writes `score.json` to `gh-pages` on `main`/`master` |
+| `config` | (empty) | repository-relative JSON path; empty uses `agentsmd.config.json` |
 
 ## Outputs
 
@@ -38,14 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: daichunghy/agentsmd@main
+      - uses: daichunghy/agentsmd@v0.1.0-alpha.2
         with:
           fail-on: error
           badge-write: false
 ```
 
-Pin `@main` to a commit SHA once you care about reproducibility. There is
-no GitHub Marketplace listing and no `v0` release tag yet.
+Pin the tag or a commit SHA. There is no GitHub Marketplace listing.
 
 ## Weekly rot (copy into *your* repo)
 

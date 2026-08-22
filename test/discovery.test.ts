@@ -81,6 +81,18 @@ describe("buildInventory", () => {
     const fs = new MemFs(TREE);
     expect(findRepoRoot(fs, "pkg\\src")).toBe("");
   });
+
+  it("honors config ignore prefixes", () => {
+    const fs = new MemFs({
+      ".git/config": "",
+      "AGENTS.md": "# root\n",
+      "vendor/AGENTS.md": "see `missing.ts`\n",
+      "agentsmd.config.json": '{"ignore":["vendor"]}\n',
+    });
+    const inv = buildInventory(fs, "", "");
+    expect(inv.agentsFiles.map((a) => a.rel)).toEqual(["AGENTS.md"]);
+    expect(inv.config.ignore).toEqual(["vendor"]);
+  });
 });
 
 describe("loadConfig", () => {
@@ -89,6 +101,7 @@ describe("loadConfig", () => {
     expect(cfg.failOn).toBe("error");
     expect(cfg.budgets.codexChainBytes).toBe(32768);
     expect(cfg.rules).toEqual({});
+    expect(cfg.ignore).toEqual([]);
   });
 
   it("accepts valid overrides", () => {

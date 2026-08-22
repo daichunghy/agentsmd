@@ -59,6 +59,19 @@ describe("sprawl-duplicate", () => {
     expect(copilotCopyState(ctx.fs, ctx.inv)).toBe("managed-intact");
   });
 
+  it("flags an unmanaged CLAUDE.md that duplicates AGENTS.md", () => {
+    const ctx = ctxFor({
+      ".git/config": "",
+      "AGENTS.md": GUIDE,
+      "CLAUDE.md": GUIDE,
+    });
+    expect(runRules(ctx, [sprawlRule])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ ruleId: "sprawl-duplicate", file: "CLAUDE.md" }),
+      ]),
+    );
+  });
+
   it("detects tampered managed copies", () => {
     const ctx = ctxFor({
       ".git/config": "",

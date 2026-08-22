@@ -42,7 +42,8 @@ export const EXAMPLE_CONFIG = `\
   "budgets": {
     "codexChainBytes": 32768
   },
-  "rules": {}
+  "rules": {},
+  "ignore": []
 }
 `;
 

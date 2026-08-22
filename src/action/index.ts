@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { canonicalJson } from "../canonical-json.js";
+import { ConfigError } from "../config.js";
 import { contextFromCwd, lint } from "../lint.js";
 import type { Finding } from "../rules/types.js";
 import { computeScore, type ScoreReport } from "../score.js";
@@ -24,8 +25,15 @@ export interface ActionResult {
 export function actionEvaluate(
   workspace: string,
   failOn: "error" | "warning" | "never",
+  configPath?: string,
 ): ActionResult | { error: string } {
-  const ctxOrErr = contextFromCwd(new RealFs(), workspace);
+  let ctxOrErr;
+  try {
+    ctxOrErr = contextFromCwd(new RealFs(), workspace, configPath);
+  } catch (e) {
+    if (e instanceof ConfigError) return { error: e.message };
+    throw e;
+  }
   if ("error" in ctxOrErr) return { error: ctxOrErr.error };
   const { ctx } = ctxOrErr;
   const findings = lint(ctx);
@@ -51,8 +59,9 @@ function main(): void {
     return;
   }
   const badgeWrite = core.getInput("badge-write") === "true";
+  const configPath = core.getInput("config") || undefined;
   const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
-  const result = actionEvaluate(workspace, failOnRaw);
+  const result = actionEvaluate(workspace, failOnRaw, configPath);
   if ("error" in result) {
     core.setFailed(result.error);
     return;

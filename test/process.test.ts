@@ -32,6 +32,19 @@ describe("process release gate", () => {
     const v = run("node package/dist/main.js --version", tmp);
     expect(v.code).toBe(0);
     expect(v.out.trim()).toMatch(/^0\.1\.0-alpha/);
+    const fixture = mkdtempSync(join(tmpdir(), "agentsmd-pack-lint-"));
+    mkdirSync(join(fixture, ".git"));
+    writeFileSync(join(fixture, ".git/config"), "");
+    writeFileSync(
+      join(fixture, "AGENTS.md"),
+      "# Guide\n\n## Setup\nInstall.\n\n## Build\nBuild.\n\n## Test\nTest.\n\n## Conventions\nStyle.\n",
+    );
+    const packed = `node ${join(tmp, "package/dist/main.js")}`;
+    const linted = run(`${packed} lint`, fixture);
+    expect(linted.code).toBe(0);
+    const synced = run(`${packed} sync`, fixture);
+    expect(synced.code).toBe(0);
+    expect(synced.out).toContain("wrote");
   });
 
   it("doctor works inside a real git repo copy of a fixture", () => {

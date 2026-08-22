@@ -108,12 +108,13 @@ Exit 0 on success (including the unmanaged CLAUDE.md hint);
 `;
 
 const SCORE_HELP = `\
-Usage: agentsmd score [--json]
+Usage: agentsmd score [--json] [--report <path>]
 
 Score instruction health 0–100 (coverage, freshness, wiring, size).
 
 Options:
   --json     Canonical JSON matching schemas/score-report.schema.json
+  --report   Write the same JSON to a file (parents created)
   -h, --help Show this help
 
 Exit 0 when findings are below fail-on (default: error);
@@ -183,12 +184,21 @@ function initCommand(args: string[]): number {
   return 0;
 }
 
+function takeArg(args: string[], name: string): string | undefined {
+  const index = args.indexOf(name);
+  if (index === -1) return undefined;
+  const value = args[index + 1];
+  if (value === undefined || value.startsWith("-")) return undefined;
+  return value;
+}
+
 function scoreCommand(args: string[]): number {
   if (wantsHelp(args)) {
     process.stdout.write(SCORE_HELP);
     return 0;
   }
   const json = args.includes("--json");
+  const reportPath = takeArg(args, "--report");
   let ctxOrErr;
   try {
     ctxOrErr = contextFromCwd(new RealFs(), process.cwd());
@@ -206,9 +216,11 @@ function scoreCommand(args: string[]): number {
   const { ctx } = ctxOrErr;
   const findings = lint(ctx);
   const report = computeScore(ctx, findings);
-  process.stdout.write(
-    json ? canonicalJson(report) + "\n" : renderScoreText(report),
-  );
+  const jsonText = canonicalJson(report) + "\n";
+  if (reportPath !== undefined) {
+    new RealFs().writeUtf8(reportPath, jsonText);
+  }
+  process.stdout.write(json || reportPath !== undefined ? jsonText : renderScoreText(report));
   return exitCodeFor(findings, ctx.inv.config.failOn);
 }
 
