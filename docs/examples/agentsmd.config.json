@@ -1,0 +1,10 @@
+{
+  "failOn": "error",
+  "budgets": {
+    "codexChainBytes": 32768
+  },
+  "rules": {
+    "todo-rot": "warning",
+    "claude-length-warn": "off"
+  }
+}

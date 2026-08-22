@@ -6,6 +6,9 @@
 [![npm](https://img.shields.io/npm/v/agentsmd?tag=alpha&logo=npm)](https://www.npmjs.com/package/agentsmd)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+**Status:** public alpha (`0.1.0-alpha.1`). Not a Codex-for-OSS selection
+claim and not a statement of program eligibility.
+
 ```sh
 npx agentsmd doctor
 ```
@@ -25,6 +28,7 @@ agentsmd keeps `AGENTS.md` the single source, then:
 
 ## 🌟 Features
 
+- `agentsmd init` — starter `AGENTS.md` (and optional config) in a git repo
 - `agentsmd doctor` — wiring report for Codex / Claude Code / Gemini CLI /
   Cursor / GitHub Copilot
 - `agentsmd lint` — 11 deterministic rules (dead paths, dead commands,
@@ -39,11 +43,16 @@ agentsmd keeps `AGENTS.md` the single source, then:
 ## 🚀 Quick start
 
 ```sh
+npx agentsmd init            # starter AGENTS.md (git repo required)
 npx agentsmd doctor          # see what each agent tool reads today
 npx agentsmd sync            # wire Claude Code + Gemini CLI to AGENTS.md
 npx agentsmd lint            # find rot
 npx agentsmd score           # 0–100 instruction health
 ```
+
+`init --config` also writes `agentsmd.config.json` when missing.
+`init --force` overwrites those files with the starter. `sync` still
+never modifies `AGENTS.md`.
 
 Inside a repo whose only instruction file is `AGENTS.md`, doctor reports:
 
@@ -90,14 +99,16 @@ Severities configurable in `agentsmd.config.json`; `fail-on` sets the CI gate.
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: daichunghy/agentsmd@v0
+- uses: daichunghy/agentsmd@main
   with:
     fail-on: error        # error | warning | never
     badge-write: false    # commit score.json to gh-pages for a badge
 ```
 
 Annotations on the exact lines, `score` output, canonical `score.json`.
-Add a weekly cron run to catch silent rot between changes.
+Config is auto-loaded from repo-root `agentsmd.config.json` when present.
+See [GitHub Action usage](docs/github-action-usage.md) for PR checks, a
+weekly cron example, and pinning notes.
 
 ## 🆚 Existing tools
 
@@ -112,11 +123,18 @@ Add a weekly cron run to catch silent rot between changes.
 
 ## 🗺️ Roadmap
 
-- v0.1 — lint / doctor / sync / score / Action (this release)
-- v0.2 — registry + leaderboard of AGENTS.md health, `init` scaffolder
+- v0.1 — lint / doctor / sync / score / init / Action (this release)
+- v0.2 — registry + leaderboard of AGENTS.md health
 - later — Cursor rules migration, MCP mode
 
 ## 🤝 Contributing
 
-`npm run verify` must pass (typecheck, build, action bundle, 70+ tests,
+`npm run verify` must pass (typecheck, build, action bundle, tests,
 golden fixtures, determinism, parity, process gates). MIT.
+
+- [Contributing](.github/CONTRIBUTING.md)
+- [Code of conduct](.github/CODE_OF_CONDUCT.md)
+- [Security](.github/SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [GitHub Action usage](docs/github-action-usage.md)
+- [Example config](docs/examples/agentsmd.config.json)

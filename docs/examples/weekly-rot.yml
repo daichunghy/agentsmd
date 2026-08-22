@@ -1,0 +1,21 @@
+# Example consumer workflow. Copy to .github/workflows/agentsmd-weekly.yml
+# in the repository you want to score. Not used as CI for this repo.
+
+name: agentsmd weekly rot
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: daichunghy/agentsmd@main
+        with:
+          fail-on: warning
+          badge-write: false

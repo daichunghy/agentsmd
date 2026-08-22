@@ -1,5 +1,7 @@
 name: agentsmd
-description: Lint, verify wiring, and score your AI agent instruction files (AGENTS.md and friends)
+description: >-
+  Lint, verify wiring, and score AGENTS.md and friends. Loads
+  agentsmd.config.json from the repo root when that file exists.
 branding:
   icon: check-circle
   color: blue

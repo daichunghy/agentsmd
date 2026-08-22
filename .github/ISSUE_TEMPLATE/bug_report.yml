@@ -1,0 +1,34 @@
+name: Bug report
+description: Something in agentsmd did not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report. Paste no secrets. Prefer `--json` output.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Command, flags, and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: agentsmd version
+      placeholder: 0.1.0-alpha.1
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A reduced tree, fixture name, or command sequence.
+    validations:
+      required: true
