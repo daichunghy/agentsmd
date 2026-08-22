@@ -8,6 +8,8 @@ import { runRules } from "./rules/registry.js";
 import type { Finding, Rule, RuleContext } from "./rules/types.js";
 import { claudeUnmanagedRule, stubRule } from "./targets/claude.js";
 import { geminiUnwiredRule } from "./targets/gemini.js";
+import { sprawlRule } from "./rules/sprawl.js";
+import { absolutePathRule, secretLikeRule, todoRotRule } from "./rules/hygiene.js";
 
 /** Rules active in this build; grows as tasks land. */
 export const ACTIVE_RULES: Rule[] = [
@@ -18,6 +20,10 @@ export const ACTIVE_RULES: Rule[] = [
   stubRule,
   claudeUnmanagedRule,
   geminiUnwiredRule,
+  sprawlRule,
+  todoRotRule,
+  secretLikeRule,
+  absolutePathRule,
 ];
 
 export function lint(ctx: RuleContext): Finding[] {
