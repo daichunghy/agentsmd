@@ -1,0 +1,27 @@
+name: agentsmd
+description: Lint, verify wiring, and score your AI agent instruction files (AGENTS.md and friends)
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  fail-on:
+    description: 'Fail the check at this severity: "error", "warning", or "never"'
+    required: false
+    default: error
+  badge-write:
+    description: >-
+      Commit score.json to the gh-pages branch on pushes to the default
+      branch, for a shields.io/endpoint badge.
+    required: false
+    default: "false"
+
+outputs:
+  score:
+    description: The 0-100 agentsmd score.
+  report:
+    description: Path to the canonical score JSON artifact.
+
+runs:
+  using: node20
+  main: action-dist/index.js

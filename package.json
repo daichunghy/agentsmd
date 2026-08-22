@@ -17,9 +17,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:action": "esbuild src/action/index.ts --bundle --platform=node --target=node20 --outfile=action-dist/index.js",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "verify": "npm run typecheck && npm run build && npm run test"
+    "verify": "npm run typecheck && npm run build && npm run build:action && npm run test"
   },
   "keywords": [
     "agents-md",
@@ -35,7 +36,9 @@
     "context-engineering"
   ],
   "devDependencies": {
+    "@actions/core": "^1.11.1",
     "@types/node": "^26.0.0",
+    "esbuild": "^0.25.12",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   }
