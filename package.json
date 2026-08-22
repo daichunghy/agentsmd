@@ -3,6 +3,14 @@
   "version": "0.1.0-alpha.1",
   "description": "One source of truth for AI agent instructions — linted, wired, scored.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daichunghy/agentsmd.git"
+  },
+  "bugs": {
+    "url": "https://github.com/daichunghy/agentsmd/issues"
+  },
+  "homepage": "https://github.com/daichunghy/agentsmd#readme",
   "type": "module",
   "engines": {
     "node": ">=18"
