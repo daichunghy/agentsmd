@@ -2,9 +2,9 @@
 
 **One source of truth for AI agent instructions — linted, wired, scored.**
 
-[![CI](https://img.shields.io/badge/CI-passing-brightgreen)](#)
-[![npm](https://img.shields.io/badge/npm-agentsmd-0.1.0--alpha.CB3837?logo=npm)](#)
-[![license](https://img.shields.io/badge/license-MIT-blue)](#)
+[![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/agentsmd?tag=alpha&logo=npm)](https://www.npmjs.com/package/agentsmd)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ```sh
 npx agentsmd doctor
