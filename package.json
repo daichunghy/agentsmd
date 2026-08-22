@@ -1,0 +1,42 @@
+{
+  "name": "agentsmd",
+  "version": "0.1.0-alpha.1",
+  "description": "One source of truth for AI agent instructions — linted, wired, scored.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "agentsmd": "dist/main.js"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "action.yml"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run typecheck && npm run build && npm run test"
+  },
+  "keywords": [
+    "agents-md",
+    "agentsmd",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "cursor",
+    "github-copilot",
+    "ai-agents",
+    "cli",
+    "linting",
+    "context-engineering"
+  ],
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}
