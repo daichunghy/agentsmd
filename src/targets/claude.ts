@@ -1,6 +1,7 @@
 import type { FileReader } from "../fs-types.js";
 import type { RepoInventory } from "../discovery.js";
 import { joinRel, type Finding, type Rule } from "../rules/types.js";
+import { copilotCopyState } from "./copilot.js";
 
 export const IMPORT_BEGIN = "<!-- agentsmd:begin:import -->";
 export const IMPORT_END = "<!-- agentsmd:end:import -->";
@@ -19,7 +20,11 @@ export type ClaudeState =
  * or broken.
  */
 export function claudeState(fs: FileReader, inv: RepoInventory): ClaudeState {
-  const claude = inv.claude ?? inv.claudeDot;
+  const claude = fs.exists(joinRel(inv.root, "CLAUDE.md"))
+    ? "CLAUDE.md"
+    : fs.exists(joinRel(inv.root, ".claude/CLAUDE.md"))
+      ? ".claude/CLAUDE.md"
+      : undefined;
   if (claude === undefined) return "absent";
   const text = fs.readUtf8(joinRel(inv.root, claude));
   if (text === undefined) return "absent";
@@ -69,7 +74,20 @@ export const stubRule: Rule = {
   id: "stub-broken",
   defaultSeverity: "error",
   run(ctx) {
-    return claudeFindings(ctx.fs, ctx.inv).filter((f) => f.ruleId === "stub-broken");
+    const out = claudeFindings(ctx.fs, ctx.inv).filter(
+      (f) => f.ruleId === "stub-broken",
+    );
+    if (copilotCopyState(ctx.fs, ctx.inv) === "managed-broken") {
+      out.push({
+        ruleId: this.id,
+        severity: this.defaultSeverity,
+        file: ctx.inv.copilotInstructions ?? ".github/copilot-instructions.md",
+        line: 1,
+        message: "managed Copilot copy was edited after generation (hash mismatch)",
+        fixHint: "run `agentsmd sync --copilot-copy` to regenerate it",
+      });
+    }
+    return out;
   },
 };
 

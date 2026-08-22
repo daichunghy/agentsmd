@@ -1,11 +1,15 @@
-import type { FileReader } from "../src/fs-types.js";
+import type { WriteReader } from "../src/fs-types.js";
 
-/** In-memory FileReader over a flat map of UTF-8 files ("" is the root). */
-export class MemFs implements FileReader {
+/** In-memory WriteReader over a flat map of UTF-8 files ("" is the root). */
+export class MemFs implements WriteReader {
   private readonly files = new Map<string, string>();
 
   constructor(files: Record<string, string> = {}) {
     for (const [k, v] of Object.entries(files)) this.files.set(this.norm(k), v);
+  }
+
+  writeUtf8(path: string, content: string): void {
+    this.files.set(this.norm(path), content);
   }
 
   private norm(p: string): string {

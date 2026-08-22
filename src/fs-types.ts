@@ -1,4 +1,9 @@
-import { existsSync, readFileSync, readdirSync, type Stats } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from "node:fs";
 
 export interface FileReader {
   /** UTF-8 content of a file, or undefined when it does not exist. */
@@ -11,8 +16,12 @@ export interface FileReader {
   listDir(path: string): string[] | undefined;
 }
 
+export interface WriteReader extends FileReader {
+  writeUtf8(path: string, content: string): void;
+}
+
 /** Real filesystem implementation. */
-export class RealFs implements FileReader {
+export class RealFs implements WriteReader {
   readUtf8(path: string): string | undefined {
     try {
       return readFileSync(path, "utf8");
@@ -40,7 +49,8 @@ export class RealFs implements FileReader {
       return undefined;
     }
   }
-}
 
-/** Type-only helper so stats stay unused until a caller needs them. */
-export type { Stats };
+  writeUtf8(path: string, content: string): void {
+    writeFileSync(path, content, "utf8");
+  }
+}

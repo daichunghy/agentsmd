@@ -10,10 +10,11 @@ export type GeminiState = "absent" | "wired" | "unwired";
  * (string or array form).
  */
 export function geminiState(fs: FileReader, inv: RepoInventory): GeminiState {
-  if (inv.gemini === undefined && inv.geminiSettings === undefined) {
-    return "absent";
-  }
-  const settings = inv.geminiSettings;
+  const gemini = fs.exists(joinRel(inv.root, "GEMINI.md"));
+  const settings = fs.exists(joinRel(inv.root, ".gemini/settings.json"))
+    ? ".gemini/settings.json"
+    : inv.geminiSettings;
+  if (!gemini && settings === undefined) return "absent";
   if (settings === undefined) return "unwired";
   const text = fs.readUtf8(joinRel(inv.root, settings));
   if (text === undefined) return "unwired";
