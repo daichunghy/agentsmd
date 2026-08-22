@@ -34,7 +34,15 @@ export function findRepoRoot(fs: FileReader, cwd: string): string | undefined {
   return undefined;
 }
 
-const SKIP_DIRS = new Set([".git", "node_modules", "dist", ".agentsmd-tmp"]);
+const SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  ".agentsmd-tmp",
+  "fixtures",
+  "coverage",
+  "action-dist",
+]);
 
 /** Build the full inventory of agent-instruction files for the repo. */
 export function buildInventory(

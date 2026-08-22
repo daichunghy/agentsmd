@@ -19914,7 +19914,15 @@ function findRepoRoot(fs, cwd) {
   }
   return void 0;
 }
-var SKIP_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", ".agentsmd-tmp"]);
+var SKIP_DIRS = /* @__PURE__ */ new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  ".agentsmd-tmp",
+  "fixtures",
+  "coverage",
+  "action-dist"
+]);
 function buildInventory(fs, root, cwdRel) {
   const agentsFiles = [];
   const overrideFiles = [];
@@ -20562,6 +20570,7 @@ function computeScore(ctx, findings) {
 
 // src/fs-types.ts
 var import_node_fs = require("node:fs");
+var import_node_path = require("node:path");
 var RealFs = class {
   readUtf8(path) {
     try {
@@ -20588,6 +20597,7 @@ var RealFs = class {
     }
   }
   writeUtf8(path, content) {
+    (0, import_node_fs.mkdirSync)((0, import_node_path.dirname)(path), { recursive: true });
     (0, import_node_fs.writeFileSync)(path, content, "utf8");
   }
 };

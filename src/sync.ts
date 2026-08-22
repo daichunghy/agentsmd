@@ -15,6 +15,15 @@ export interface SyncOptions {
   copilotCopy: boolean;
 }
 
+export interface SyncResult {
+  changed: string[];
+  /** Set when unmanaged CLAUDE.md was left untouched (need `sync --adopt`). */
+  adoptHint: string | undefined;
+}
+
+export const ADOPT_HINT =
+  "agentsmd: unmanaged CLAUDE.md left unchanged; run sync --adopt to wrap existing content";
+
 const IMPORT_BLOCK = `${IMPORT_BEGIN}\n@AGENTS.md\n${IMPORT_END}\n`;
 
 function buildStub(claudeOnly: string | undefined): string {
@@ -35,26 +44,27 @@ function ensureTrailingNewline(text: string): string {
 
 /**
  * Generate and repair the minimal wiring artifacts. Never touches
- * AGENTS.md or .cursor/rules. Returns the changed paths; a clean repo
- * yields [] (idempotency invariant).
+ * AGENTS.md or .cursor/rules. A clean repo yields `{ changed: [] }`
+ * (idempotency invariant). Unmanaged CLAUDE.md without `--adopt` does
+ * not write that file and sets `adoptHint`.
  */
 export function runSync(
   fs: WriteReader,
   inv: RepoInventory,
   opts: SyncOptions,
-): string[] {
-  const changed: string[] = [];
-  changed.push(...syncClaude(fs, inv, opts.adopt));
+): SyncResult {
+  const claude = syncClaude(fs, inv, opts.adopt);
+  const changed: string[] = [...claude.changed];
   changed.push(...syncGemini(fs, inv));
   if (opts.copilotCopy) changed.push(...syncCopilot(fs, inv));
-  return changed;
+  return { changed, adoptHint: claude.adoptHint };
 }
 
 function syncClaude(
   fs: WriteReader,
   inv: RepoInventory,
   adopt: boolean,
-): string[] {
+): SyncResult {
   const claude = fs.exists(joinRel(inv.root, "CLAUDE.md"))
     ? "CLAUDE.md"
     : fs.exists(joinRel(inv.root, ".claude/CLAUDE.md"))
@@ -62,24 +72,26 @@ function syncClaude(
       : undefined;
   if (claude === undefined) {
     fs.writeUtf8(joinRel(inv.root, "CLAUDE.md"), buildStub(undefined));
-    return ["CLAUDE.md"];
+    return { changed: ["CLAUDE.md"], adoptHint: undefined };
   }
   const state = claudeState(fs, inv);
   const text = fs.readUtf8(joinRel(inv.root, claude)) ?? "";
-  if (state === "managed-intact" || state === "absent") return [];
+  if (state === "managed-intact" || state === "absent") {
+    return { changed: [], adoptHint: undefined };
+  }
   if (state === "managed-broken") {
     const claudeOnly = extractClaudeOnly(text);
     fs.writeUtf8(
       joinRel(inv.root, claude),
       buildStub(claudeOnly === undefined ? undefined : ensureTrailingNewline(claudeOnly)),
     );
-    return [claude];
+    return { changed: [claude], adoptHint: undefined };
   }
   // unmanaged
-  if (!adopt) return [];
+  if (!adopt) return { changed: [], adoptHint: ADOPT_HINT };
   const body = ensureTrailingNewline(text);
   fs.writeUtf8(joinRel(inv.root, claude), buildStub(body));
-  return [claude];
+  return { changed: [claude], adoptHint: undefined };
 }
 
 function syncGemini(fs: WriteReader, inv: RepoInventory): string[] {

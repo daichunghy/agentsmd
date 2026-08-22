@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import {
   mkdtempSync,
   cpSync,
@@ -13,26 +13,22 @@ import { join } from "node:path";
 import { EXAMPLE_CONFIG, STARTER_AGENTS_MD } from "../src/init.js";
 
 function run(cmd: string, cwd: string): { code: number; out: string } {
-  try {
-    const out = execSync(cmd, {
-      cwd,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    return { code: 0, out };
-  } catch (e) {
-    const err = e as { status?: number; stdout?: string; stderr?: string };
-    return { code: err.status ?? 1, out: (err.stdout ?? "") + (err.stderr ?? "") };
-  }
+  const result = spawnSync(cmd, { cwd, encoding: "utf8", shell: true });
+  return {
+    code: result.status ?? 1,
+    out: `${result.stdout ?? ""}${result.stderr ?? ""}`,
+  };
 }
 
 describe("process release gate", () => {
   it("packed tarball runs --version", () => {
     const tmp = mkdtempSync(join(tmpdir(), "agentsmd-pack-"));
-    execSync("npm pack --silent", { cwd: process.cwd() });
-    const tarball = readdirSync(process.cwd()).find((f) => f.endsWith(".tgz"));
+    execSync(`npm pack --silent --pack-destination ${JSON.stringify(tmp)}`, {
+      cwd: process.cwd(),
+    });
+    const tarball = readdirSync(tmp).find((f) => f.endsWith(".tgz"));
     expect(tarball).toBeDefined();
-    execSync(`tar -xzf ${join(process.cwd(), tarball!)}`, { cwd: tmp });
+    execSync(`tar -xzf ${join(tmp, tarball!)}`, { cwd: tmp });
     const v = run("node package/dist/main.js --version", tmp);
     expect(v.code).toBe(0);
     expect(v.out.trim()).toMatch(/^0\.1\.0-alpha/);
@@ -95,5 +91,48 @@ describe("process release gate", () => {
     expect(run(`${bin} init --config --json`, tmp).out).toBe(
       '{"skipped":["AGENTS.md","agentsmd.config.json"],"wrote":[]}\n',
     );
+  });
+
+  it("sync prints sync --adopt for unmanaged CLAUDE.md and is silent on the next run", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "agentsmd-adopt-"));
+    cpSync(join(process.cwd(), "fixtures", "adopt"), tmp, { recursive: true });
+    mkdirSync(join(tmp, ".git"), { recursive: true });
+    writeFileSync(join(tmp, ".git/config"), "");
+    const bin = `node ${join(process.cwd(), "dist", "main.js")}`;
+    const before = readFileSync(join(tmp, "CLAUDE.md"), "utf8");
+
+    const refused = run(`${bin} sync`, tmp);
+    expect(refused.code).toBe(0);
+    expect(refused.out).toContain("sync --adopt");
+    expect(refused.out).not.toContain("nothing to change");
+    expect(readFileSync(join(tmp, "CLAUDE.md"), "utf8")).toBe(before);
+
+    expect(run(`${bin} sync --adopt`, tmp).code).toBe(0);
+    const second = run(`${bin} sync`, tmp);
+    expect(second.code).toBe(0);
+    expect(second.out).toContain("agentsmd: nothing to change");
+    expect(second.out).not.toContain("sync --adopt");
+  });
+
+  it("score honors failOn from config", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "agentsmd-score-"));
+    mkdirSync(join(tmp, ".git"));
+    writeFileSync(join(tmp, ".git/config"), "");
+    writeFileSync(
+      join(tmp, "AGENTS.md"),
+      "# Guide\n\n## Setup\nInstall.\n\n## Build\nBuild.\n\n## Test\nTest.\n\n## Conventions\nStyle.\n",
+    );
+    writeFileSync(join(tmp, "CLAUDE.md"), "# hand written\n");
+    writeFileSync(
+      join(tmp, "agentsmd.config.json"),
+      '{"failOn":"error"}\n',
+    );
+    const bin = `node ${join(process.cwd(), "dist", "main.js")}`;
+    expect(run(`${bin} score`, tmp).code).toBe(0);
+    writeFileSync(
+      join(tmp, "agentsmd.config.json"),
+      '{"failOn":"warning"}\n',
+    );
+    expect(run(`${bin} score`, tmp).code).toBe(1);
   });
 });

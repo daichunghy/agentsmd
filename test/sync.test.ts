@@ -17,7 +17,7 @@ const IMPORT_BLOCK =
 describe("sync claude stub", () => {
   it("creates a pristine stub when CLAUDE.md is absent", () => {
     const { fs, inv } = make({ ".git/config": "", "AGENTS.md": "# g\n" });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual(["CLAUDE.md"]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual(["CLAUDE.md"]);
     expect(fs.readUtf8("CLAUDE.md")).toBe(IMPORT_BLOCK);
     expect(claudeState(fs, inv)).toBe("managed-intact");
   });
@@ -27,7 +27,7 @@ describe("sync claude stub", () => {
       "<!-- agentsmd:begin:import -->\n@OLD.md\n<!-- agentsmd:end:import -->\n\n" +
       "<!-- agentsmd:begin:claude-only -->\nClaude-specific rule\n<!-- agentsmd:end:claude-only -->\n";
     const { fs, inv } = make({ ".git/config": "", "AGENTS.md": "# g\n", "CLAUDE.md": broken });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual(["CLAUDE.md"]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual(["CLAUDE.md"]);
     const text = fs.readUtf8("CLAUDE.md") ?? "";
     expect(text).toContain("@AGENTS.md");
     expect(text).toContain("Claude-specific rule\n");
@@ -40,9 +40,11 @@ describe("sync claude stub", () => {
       "AGENTS.md": "# g\n",
       "CLAUDE.md": "# my own rules\nmore\n",
     });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual([]);
+    const refused = runSync(fs, inv, { adopt: false, copilotCopy: false });
+    expect(refused.changed).toEqual([]);
+    expect(refused.adoptHint).toContain("sync --adopt");
     expect(fs.readUtf8("CLAUDE.md")).toBe("# my own rules\nmore\n");
-    expect(runSync(fs, inv, { adopt: true, copilotCopy: false })).toEqual(["CLAUDE.md"]);
+    expect(runSync(fs, inv, { adopt: true, copilotCopy: false }).changed).toEqual(["CLAUDE.md"]);
     const text = fs.readUtf8("CLAUDE.md") ?? "";
     expect(text).toContain(IMPORT_BLOCK);
     expect(text).toContain("# my own rules\nmore\n");
@@ -61,7 +63,7 @@ describe("sync gemini", () => {
       "GEMINI.md": "# g2\n",
       ".gemini/settings.json": '{"theme":"dark","context":{"fileName":"GEMINI.md"}}',
     });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual([".gemini/settings.json"]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual([".gemini/settings.json"]);
     const parsed = JSON.parse(fs.readUtf8(".gemini/settings.json")!) as {
       theme: string;
       context: { fileName: string[] };
@@ -84,8 +86,8 @@ describe("sync gemini", () => {
 
   it("still ensures the Claude stub for single-tool repos (spec §7)", () => {
     const { fs, inv } = make({ ".git/config": "", "AGENTS.md": "# g\n" });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual(["CLAUDE.md"]);
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual([]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual(["CLAUDE.md"]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual([]);
   });
 });
 
@@ -96,10 +98,10 @@ describe("sync copilot copy", () => {
       "AGENTS.md": "# g\n",
       "CLAUDE.md": STUB,
     });
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: false })).toEqual([]);
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: false }).changed).toEqual([]);
     const first = fs.readUtf8(".github/copilot-instructions.md");
     expect(first).toBeUndefined();
-    expect(runSync(fs, inv, { adopt: false, copilotCopy: true })).toEqual([
+    expect(runSync(fs, inv, { adopt: false, copilotCopy: true }).changed).toEqual([
       ".github/copilot-instructions.md",
     ]);
     expect(fs.readUtf8(".github/copilot-instructions.md")).toMatch(
@@ -117,8 +119,10 @@ describe("idempotency", () => {
       "CLAUDE.md": "# legacy\n",
     });
     const first = runSync(fs, inv, { adopt: true, copilotCopy: true });
-    expect(first.length).toBeGreaterThan(0);
+    expect(first.changed.length).toBeGreaterThan(0);
+    expect(first.adoptHint).toBeUndefined();
     const second = runSync(fs, inv, { adopt: true, copilotCopy: true });
-    expect(second).toEqual([]);
+    expect(second.changed).toEqual([]);
+    expect(second.adoptHint).toBeUndefined();
   });
 });

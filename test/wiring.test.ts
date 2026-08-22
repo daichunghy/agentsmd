@@ -87,4 +87,16 @@ describe("runDoctor", () => {
     expect(a.findings.map((f) => f.ruleId)).toEqual(["claude-unmanaged"]);
     expect(canonicalJson(a)).toBe(canonicalJson(b));
   });
+
+  it("mentions .cursor/rules when rule files exist", () => {
+    const withRules = ctxFor({
+      ".git/config": "",
+      "AGENTS.md": "# g",
+      ".cursor/rules/a.mdc": "# rule",
+    });
+    expect(runDoctor(withRules).summary).toContain(".cursor/rules");
+    expect(runDoctor(withRules).summary).toContain("1 file(s)");
+    const none = ctxFor({ ".git/config": "", "AGENTS.md": "# g" });
+    expect(runDoctor(none).summary).not.toContain(".cursor/rules");
+  });
 });

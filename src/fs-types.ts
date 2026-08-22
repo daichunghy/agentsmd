@@ -1,9 +1,11 @@
 import {
   existsSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   writeFileSync,
 } from "node:fs";
+import { dirname } from "node:path";
 
 export interface FileReader {
   /** UTF-8 content of a file, or undefined when it does not exist. */
@@ -51,6 +53,7 @@ export class RealFs implements WriteReader {
   }
 
   writeUtf8(path: string, content: string): void {
+    mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, content, "utf8");
   }
 }

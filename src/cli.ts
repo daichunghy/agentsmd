@@ -43,7 +43,7 @@ Examples:
 
 Exit codes:
   0  success / clean
-  1  findings at or above fail-on (lint, doctor)
+  1  findings at or above fail-on (lint, doctor, score)
   2  usage or configuration error
 `;
 
@@ -110,6 +110,9 @@ Score instruction health 0–100 (coverage, freshness, wiring, size).
 Options:
   --json     Canonical JSON matching schemas/score-report.schema.json
   -h, --help Show this help
+
+Exit 0 when findings are below fail-on (default: error);
+1 when findings meet the threshold; 2 when not in a git repository.
 `;
 
 export async function runCli(argv: string[]): Promise<number> {
@@ -192,11 +195,12 @@ function scoreCommand(args: string[]): number {
     return 2;
   }
   const { ctx } = ctxOrErr;
-  const report = computeScore(ctx, lint(ctx));
+  const findings = lint(ctx);
+  const report = computeScore(ctx, findings);
   process.stdout.write(
     json ? canonicalJson(report) + "\n" : renderScoreText(report),
   );
-  return 0;
+  return exitCodeFor(findings, ctx.inv.config.failOn);
 }
 
 function syncCommand(args: string[]): number {
@@ -221,11 +225,14 @@ function syncCommand(args: string[]): number {
     return 2;
   }
   const { ctx } = ctxOrErr;
-  const changed = runSync(ctx.fs as WriteReader, ctx.inv, { adopt, copilotCopy });
-  if (changed.length === 0) {
+  const result = runSync(ctx.fs as WriteReader, ctx.inv, { adopt, copilotCopy });
+  if (result.changed.length === 0 && result.adoptHint === undefined) {
     process.stdout.write("agentsmd: nothing to change\n");
   } else {
-    for (const rel of changed) process.stdout.write(`wrote ${rel}\n`);
+    for (const rel of result.changed) process.stdout.write(`wrote ${rel}\n`);
+    if (result.adoptHint !== undefined) {
+      process.stderr.write(result.adoptHint + "\n");
+    }
   }
   return 0;
 }

@@ -20,7 +20,10 @@ export function runDoctor(ctx: RuleContext): DoctorResult {
   const gemini = geminiState(ctx.fs, ctx.inv);
   const lines = [
     `codex: native AGENTS.md — chain ${chain.files.length} file(s), ${chain.totalBytes} byte(s)`,
-    `cursor: native AGENTS.md — ${ctx.inv.agentsFiles.length > 0 ? "present" : "missing"}`,
+    `cursor: native AGENTS.md — ${ctx.inv.agentsFiles.length > 0 ? "present" : "missing"}` +
+      (ctx.inv.cursorRules.length > 0
+        ? `; .cursor/rules ${ctx.inv.cursorRules.length} file(s)`
+        : ""),
     `copilot: cloud agent reads AGENTS.md natively; chat instructions ${
       ctx.inv.copilotInstructions !== undefined ? "present" : "absent"
     }`,

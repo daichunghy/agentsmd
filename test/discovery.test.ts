@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ConfigError, loadConfig } from "../src/config.js";
 import { buildInventory, findRepoRoot } from "../src/discovery.js";
+import { lint } from "../src/lint.js";
 import { MemFs } from "./helpers.js";
 
 const TREE: Record<string, string> = {
@@ -53,6 +54,21 @@ describe("buildInventory", () => {
     expect(inv.instructionFiles).toContain("pkg/AGENTS.md");
     expect(inv.instructionFiles).toContain("CLAUDE.md");
     expect(inv.instructionFiles).not.toContain(".cursor/rules/a.mdc");
+  });
+
+  it("skips fixtures, coverage, and action-dist trees", () => {
+    const fs = new MemFs({
+      ".git/config": "",
+      "AGENTS.md": "# root\n",
+      "fixtures/x/AGENTS.md": "see `missing/path.ts`\n",
+      "coverage/AGENTS.md": "see `also/missing.ts`\n",
+      "action-dist/AGENTS.md": "see `nope.ts`\n",
+    });
+    const skipped = buildInventory(fs, "", "");
+    expect(skipped.agentsFiles.map((a) => a.rel)).toEqual(["AGENTS.md"]);
+    const findings = lint({ fs, inv: skipped });
+    expect(findings.some((f) => f.file.startsWith("fixtures/"))).toBe(false);
+    expect(findings.some((f) => f.ruleId === "dead-path")).toBe(false);
   });
 });
 

@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   support, CODEOWNERS, issue/PR templates, Dependabot
 - GitHub Action usage docs and copy-paste example workflows
 
+### Changed
+
+- README drops the unpublished npm badge and states there is no
+  Marketplace listing or `v0` Action tag yet
+
+### Fixed
+
+- `RealFs.writeUtf8` creates missing parent directories (`.gemini/`, `.github/`)
+- Discovery skips `fixtures/`, `coverage/`, and `action-dist/`
+- `sync` prints `sync --adopt` when `CLAUDE.md` is unmanaged
+- `score` honors `failOn` like lint and doctor
+- Doctor summary mentions `.cursor/rules` when those files exist
+
 ## [0.1.0-alpha.1] - 2026-08-22
 
 ### Added
