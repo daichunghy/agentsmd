@@ -33,13 +33,17 @@ export class MemFs implements FileReader {
   listDir(path: string): string[] | undefined {
     const n = this.norm(path);
     const names = new Set<string>();
+    let isDir = n === "";
     for (const f of this.files.keys()) {
       if (f === n) continue;
-      if (n === "" || f.startsWith(n + "/")) {
-        const rel = n === "" ? f : f.slice(n.length + 1);
-        names.add(rel.split("/")[0]!);
+      if (n === "") {
+        isDir = true;
+        names.add(f.split("/")[0]!);
+      } else if (f.startsWith(n + "/")) {
+        isDir = true;
+        names.add(f.slice(n.length + 1).split("/")[0]!);
       }
     }
-    return [...names].sort();
+    return isDir ? [...names].sort() : undefined;
   }
 }
