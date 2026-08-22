@@ -21,7 +21,10 @@
   "files": [
     "dist",
     "schemas",
-    "action.yml"
+    "action.yml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
