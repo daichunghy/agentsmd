@@ -1,12 +1,19 @@
 import { buildInventory, findRepoRoot } from "./discovery.js";
 import { RealFs, type FileReader } from "./fs-types.js";
+import { codexBudgetRule } from "./rules/budget.js";
+import { claudeLengthRule } from "./rules/claude-length.js";
 import { deadCommandRule } from "./rules/dead-command.js";
 import { deadPathRule } from "./rules/dead-path.js";
 import { runRules } from "./rules/registry.js";
 import type { Finding, Rule, RuleContext } from "./rules/types.js";
 
 /** Rules active in this build; grows as tasks land. */
-export const ACTIVE_RULES: Rule[] = [deadPathRule, deadCommandRule];
+export const ACTIVE_RULES: Rule[] = [
+  deadPathRule,
+  deadCommandRule,
+  codexBudgetRule,
+  claudeLengthRule,
+];
 
 export function lint(ctx: RuleContext): Finding[] {
   return runRules(ctx, ACTIVE_RULES);
