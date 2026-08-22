@@ -3,7 +3,6 @@
 **One source of truth for AI agent instructions — linted, wired, scored.**
 
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/agentsmd?tag=alpha&logo=npm)](https://www.npmjs.com/package/agentsmd)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Status:** public alpha (`0.1.0-alpha.1`). Not a Codex-for-OSS selection
@@ -12,6 +11,9 @@ claim and not a statement of program eligibility.
 ```sh
 npx agentsmd doctor
 ```
+
+The npm registry package is not published yet; clone this repo and run
+`npm pack` or `node dist/main.js` until it is.
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
 the Copilot agent read `AGENTS.md`, Claude Code reads `CLAUDE.md`, Gemini CLI
@@ -105,10 +107,11 @@ Severities configurable in `agentsmd.config.json`; `fail-on` sets the CI gate.
     badge-write: false    # commit score.json to gh-pages for a badge
 ```
 
-Annotations on the exact lines, `score` output, canonical `score.json`.
-Config is auto-loaded from repo-root `agentsmd.config.json` when present.
-See [GitHub Action usage](docs/github-action-usage.md) for PR checks, a
-weekly cron example, and pinning notes.
+No GitHub Marketplace listing or `v0` release tag yet — pin `@main` or a
+commit SHA. Annotations on the exact lines, `score` output, canonical
+`score.json`. Config is auto-loaded from repo-root `agentsmd.config.json`
+when present. See [GitHub Action usage](docs/github-action-usage.md) for
+PR checks, a weekly cron example, and pinning notes.
 
 ## 🆚 Existing tools
 

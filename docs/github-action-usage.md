@@ -44,8 +44,8 @@ jobs:
           badge-write: false
 ```
 
-Pin `@main` to a commit SHA once you care about reproducibility. Version
-tags will land with a stable release; this is a public alpha.
+Pin `@main` to a commit SHA once you care about reproducibility. There is
+no GitHub Marketplace listing and no `v0` release tag yet.
 
 ## Weekly rot (copy into *your* repo)
 
@@ -68,3 +68,6 @@ npx agentsmd doctor
 npx agentsmd lint --json
 npx agentsmd score --json
 ```
+
+The npm registry package is not published yet; from a clone, `npm run build`
+then `node dist/main.js` is the local equivalent.
