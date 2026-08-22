@@ -3,6 +3,7 @@ import { canonicalJson } from "./canonical-json.js";
 import { contextFromCwd, lint } from "./lint.js";
 import { RealFs, type WriteReader } from "./fs-types.js";
 import { exitCodeFor, renderJson, renderText } from "./report.js";
+import { computeScore, renderScoreText } from "./score.js";
 import { runSync } from "./sync.js";
 import { runDoctor } from "./wiring.js";
 import { VERSION } from "./version.js";
@@ -26,8 +27,35 @@ export async function runCli(argv: string[]): Promise<number> {
   if (cmd === "sync") {
     return syncCommand(argv.slice(1));
   }
+  if (cmd === "score") {
+    return scoreCommand(argv.slice(1));
+  }
   process.stderr.write(`unknown command: ${cmd}\n`);
   return 2;
+}
+
+function scoreCommand(args: string[]): number {
+  const json = args.includes("--json");
+  let ctxOrErr;
+  try {
+    ctxOrErr = contextFromCwd(new RealFs(), process.cwd());
+  } catch (e) {
+    if (e instanceof ConfigError) {
+      process.stderr.write(`config error: ${e.message}\n`);
+      return 2;
+    }
+    throw e;
+  }
+  if ("error" in ctxOrErr) {
+    process.stderr.write(ctxOrErr.error + "\n");
+    return 2;
+  }
+  const { ctx } = ctxOrErr;
+  const report = computeScore(ctx, lint(ctx));
+  process.stdout.write(
+    json ? canonicalJson(report) + "\n" : renderScoreText(report),
+  );
+  return 0;
 }
 
 function syncCommand(args: string[]): number {
