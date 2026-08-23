@@ -2,6 +2,10 @@ import { joinRel, type Finding, type Rule } from "./types.js";
 import { claudeState } from "../targets/claude.js";
 
 const THRESHOLD = 0.7;
+/** Containment threshold: |A∩B| / |B| — catches files that copy a subset. */
+const CONTAINMENT_THRESHOLD = 0.8;
+/** Minimum unique tokens before subset containment is meaningful. */
+const MIN_TOKENS = 20;
 
 /** Normalize text for similarity: lowercase, strip md syntax, split tokens. */
 export function normalizeTokens(text: string): Set<string> {
@@ -19,6 +23,14 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   let inter = 0;
   for (const t of a) if (b.has(t)) inter++;
   return inter / (a.size + b.size - inter);
+}
+
+/** Share of `other`'s tokens already present in `source` (subset copy). */
+function containment(source: Set<string>, other: Set<string>): number {
+  if (other.size === 0) return 0;
+  let inter = 0;
+  for (const t of other) if (source.has(t)) inter++;
+  return inter / other.size;
 }
 
 /**
@@ -51,14 +63,18 @@ export const sprawlRule: Rule = {
       const first = (text.split(/\r?\n/)[0] ?? "").trim();
       if (/^<!-- agentsmd:managed/.test(first)) continue;
       if (claudeManaged && file === (ctx.inv.claudeDot ?? "CLAUDE.md")) continue;
-      const sim = jaccard(sourceTokens, normalizeTokens(text));
-      if (sim >= THRESHOLD) {
+      const otherTokens = normalizeTokens(text);
+      const sim = jaccard(sourceTokens, otherTokens);
+      const contained =
+        otherTokens.size >= MIN_TOKENS ? containment(sourceTokens, otherTokens) : 0;
+      if (sim >= THRESHOLD || contained >= CONTAINMENT_THRESHOLD) {
+        const overlap = Math.max(sim, contained);
         findings.push({
           ruleId: this.id,
           severity: this.defaultSeverity,
           file,
           line: 1,
-          message: `content is ${(sim * 100).toFixed(0)}% identical to AGENTS.md — duplicated instruction files rot silently`,
+          message: `content overlaps AGENTS.md by ${(overlap * 100).toFixed(0)}% — duplicated instruction files rot silently`,
           fixHint: `delete ${file} or wire the tool to AGENTS.md with \`agentsmd sync\``,
         });
       }

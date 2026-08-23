@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-08-23
+
+### Fixed
+- CLI now rejects unknown flags, unexpected positional arguments, and valueless
+  `--report` with exit code 2 instead of silently ignoring them. Previously
+  `lint --path <other-repo>` evaluated the current directory without any
+  warning (agentsmd is cwd-only by design; the error message says so).
+- `sprawl-duplicate` also flags subset copies: a file whose tokens are ≥80%
+  contained in `AGENTS.md` is now flagged even when symmetric similarity is
+  below the 0.7 threshold. Short files (<20 unique tokens) stay exempt.
+- `absolute-path-portability` now also detects absolute and `file://` targets
+  inside markdown links (`](file:///Users/...)`), not only backticked paths —
+  the exact portability bug class seen leaking local usernames into public
+  instruction files.
+
 ## [0.1.0-alpha.2] - 2026-08-22
 
 ### Added

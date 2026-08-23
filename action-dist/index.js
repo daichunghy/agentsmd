@@ -20393,6 +20393,8 @@ var geminiUnwiredRule = {
 
 // src/rules/sprawl.ts
 var THRESHOLD = 0.7;
+var CONTAINMENT_THRESHOLD = 0.8;
+var MIN_TOKENS = 20;
 function normalizeTokens(text) {
   const cleaned = text.toLowerCase().replace(/<!--.*?-->/gs, "").replace(/[`*_#\[\]()>-]/g, " ").replace(/\s+/g, " ").trim();
   return new Set(cleaned === "" ? [] : cleaned.split(" "));
@@ -20402,6 +20404,12 @@ function jaccard(a, b) {
   let inter = 0;
   for (const t of a) if (b.has(t)) inter++;
   return inter / (a.size + b.size - inter);
+}
+function containment(source, other) {
+  if (other.size === 0) return 0;
+  let inter = 0;
+  for (const t of other) if (source.has(t)) inter++;
+  return inter / other.size;
 }
 var sprawlRule = {
   id: "sprawl-duplicate",
@@ -20423,14 +20431,17 @@ var sprawlRule = {
       const first = (text.split(/\r?\n/)[0] ?? "").trim();
       if (/^<!-- agentsmd:managed/.test(first)) continue;
       if (claudeManaged && file === (ctx.inv.claudeDot ?? "CLAUDE.md")) continue;
-      const sim = jaccard(sourceTokens, normalizeTokens(text));
-      if (sim >= THRESHOLD) {
+      const otherTokens = normalizeTokens(text);
+      const sim = jaccard(sourceTokens, otherTokens);
+      const contained = otherTokens.size >= MIN_TOKENS ? containment(sourceTokens, otherTokens) : 0;
+      if (sim >= THRESHOLD || contained >= CONTAINMENT_THRESHOLD) {
+        const overlap = Math.max(sim, contained);
         findings.push({
           ruleId: this.id,
           severity: this.defaultSeverity,
           file,
           line: 1,
-          message: `content is ${(sim * 100).toFixed(0)}% identical to AGENTS.md \u2014 duplicated instruction files rot silently`,
+          message: `content overlaps AGENTS.md by ${(overlap * 100).toFixed(0)}% \u2014 duplicated instruction files rot silently`,
           fixHint: `delete ${file} or wire the tool to AGENTS.md with \`agentsmd sync\``
         });
       }
@@ -20466,6 +20477,7 @@ var TODO_RE = /\b(TODO|FIXME)\b/;
 var SECRET_KEY_RE = /-----BEGIN [A-Z ]*PRIVATE KEY-----/;
 var SECRET_ASSIGN_RE = /(api[_-]?key|secret|token)\s*[:=]\s*["'][A-Za-z0-9_-]{16,}["']/i;
 var ABS_PATH_RE = /`(\/(?:Users|home|var|etc|opt|tmp)\/[^`]*|[A-Z]:\\[^`]*)`/;
+var LINK_ABS_RE = /\]\(\s*(?:file:\/\/)?(?:\/(?:Users|home|var|etc|opt|tmp)\/|[A-Z]:\\)[^)\s]*/;
 var todoRotRule = {
   id: "todo-rot",
   defaultSeverity: "warning",
@@ -20502,7 +20514,7 @@ var absolutePathRule = {
       ctx,
       this.id,
       "warning",
-      (t) => ABS_PATH_RE.exec(t)?.[0],
+      (t) => ABS_PATH_RE.exec(t)?.[0] ?? LINK_ABS_RE.exec(t)?.[0],
       (hit) => `absolute path ${hit} breaks on other machines`,
       "use a repo-relative path like ./scripts/build.sh"
     );

@@ -160,6 +160,8 @@ function initCommand(args: string[]): number {
     process.stdout.write(INIT_HELP);
     return 0;
   }
+  const invalid = validateArgs("init", args);
+  if (invalid !== undefined) return usageError(invalid);
   const json = args.includes("--json");
   const config = args.includes("--config");
   const force = args.includes("--force");
@@ -192,11 +194,61 @@ function takeArg(args: string[], name: string): string | undefined {
   return value;
 }
 
+interface CommandArgSpec {
+  readonly flags: readonly string[];
+  readonly valueFlags?: readonly string[];
+}
+
+const COMMAND_ARGS: Record<string, CommandArgSpec> = {
+  init: { flags: ["--json", "--config", "--force", "-h", "--help"] },
+  lint: { flags: ["--json", "-h", "--help"] },
+  doctor: { flags: ["--json", "-h", "--help"] },
+  sync: { flags: ["--adopt", "--copilot-copy", "-h", "--help"] },
+  score: { flags: ["--json", "-h", "--help"], valueFlags: ["--report"] },
+};
+
+/**
+ * Strict argument validation: unknown flags and positional arguments are
+ * usage errors (exit 2) rather than being silently ignored, so a typo like
+ * `lint --path <other-repo>` cannot make the tool evaluate the wrong
+ * repository without any warning. agentsmd always runs in the current
+ * directory.
+ */
+function validateArgs(command: string, args: string[]): string | undefined {
+  const spec = COMMAND_ARGS[command];
+  if (spec === undefined) return undefined;
+  for (let i = 0; i < args.length; i += 1) {
+    const token = args[i]!;
+    if (spec.valueFlags?.includes(token)) {
+      const value = args[i + 1];
+      if (value === undefined || value.startsWith("-")) {
+        return `${command}: ${token} requires a value`;
+      }
+      i += 1;
+      continue;
+    }
+    if (!spec.flags.includes(token)) {
+      if (token.startsWith("-")) {
+        return `${command}: unknown flag ${token} (agentsmd runs in the current directory; cd into the target repository first)`;
+      }
+      return `${command}: unexpected argument ${token}`;
+    }
+  }
+  return undefined;
+}
+
+function usageError(message: string): number {
+  process.stderr.write(`${message}\nRun 'agentsmd <command> --help' for usage.\n`);
+  return 2;
+}
+
 function scoreCommand(args: string[]): number {
   if (wantsHelp(args)) {
     process.stdout.write(SCORE_HELP);
     return 0;
   }
+  const invalid = validateArgs("score", args);
+  if (invalid !== undefined) return usageError(invalid);
   const json = args.includes("--json");
   const reportPath = takeArg(args, "--report");
   let ctxOrErr;
@@ -229,6 +281,8 @@ function syncCommand(args: string[]): number {
     process.stdout.write(SYNC_HELP);
     return 0;
   }
+  const invalid = validateArgs("sync", args);
+  if (invalid !== undefined) return usageError(invalid);
   const adopt = args.includes("--adopt");
   const copilotCopy = args.includes("--copilot-copy");
   let ctxOrErr;
@@ -263,6 +317,8 @@ function doctorCommand(args: string[]): number {
     process.stdout.write(DOCTOR_HELP);
     return 0;
   }
+  const invalid = validateArgs("doctor", args);
+  if (invalid !== undefined) return usageError(invalid);
   const json = args.includes("--json");
   let ctxOrErr;
   try {
@@ -291,6 +347,8 @@ function lintCommand(args: string[]): number {
     process.stdout.write(LINT_HELP);
     return 0;
   }
+  const invalid = validateArgs("lint", args);
+  if (invalid !== undefined) return usageError(invalid);
   const json = args.includes("--json");
   let ctxOrErr;
   try {

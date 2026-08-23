@@ -36,6 +36,9 @@ const SECRET_KEY_RE = /-----BEGIN [A-Z ]*PRIVATE KEY-----/;
 const SECRET_ASSIGN_RE =
   /(api[_-]?key|secret|token)\s*[:=]\s*["'][A-Za-z0-9_-]{16,}["']/i;
 const ABS_PATH_RE = /`(\/(?:Users|home|var|etc|opt|tmp)\/[^`]*|[A-Z]:\\[^`]*)`/;
+/** Absolute or file:// targets inside markdown links, e.g. `](file:///Users/...)`. */
+const LINK_ABS_RE =
+  /\]\(\s*(?:file:\/\/)?(?:\/(?:Users|home|var|etc|opt|tmp)\/|[A-Z]:\\)[^)\s]*/;
 
 export const todoRotRule: Rule = {
   id: "todo-rot",
@@ -75,7 +78,7 @@ export const absolutePathRule: Rule = {
       ctx,
       this.id,
       "warning",
-      (t) => ABS_PATH_RE.exec(t)?.[0],
+      (t) => ABS_PATH_RE.exec(t)?.[0] ?? LINK_ABS_RE.exec(t)?.[0],
       (hit) => `absolute path ${hit} breaks on other machines`,
       "use a repo-relative path like ./scripts/build.sh",
     );
