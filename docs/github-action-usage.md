@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: daichunghy/agentsmd@v0.1.0-alpha.2
+      - uses: daichunghy/agentsmd@v0.1.0-alpha.3
         with:
           fail-on: error
           badge-write: false

@@ -27,6 +27,6 @@ The CLI is not on npm until you finish these steps once. After that,
 
 ## 4. Tell me (or run)
 
-After the secret exists, creating git tag `v0.1.0-alpha.2` publishes the
+After the secret exists, creating git tag `v0.1.0-alpha.3` publishes the
 package. Do not claim download counts until https://www.npmjs.com/package/agentsmd
 loads.

@@ -115,13 +115,13 @@ Severities configurable in `agentsmd.config.json`; `fail-on` sets the CI gate.
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: daichunghy/agentsmd@v0.1.0-alpha.2
+- uses: daichunghy/agentsmd@v0.1.0-alpha.3
   with:
     fail-on: error        # error | warning | never
     badge-write: false    # commit score.json to gh-pages for a badge
 ```
 
-No GitHub Marketplace listing. Pin `@v0.1.0-alpha.2` or a commit SHA.
+No GitHub Marketplace listing. Pin `@v0.1.0-alpha.3` or a commit SHA.
 Annotations on the exact lines, `score` output, canonical `score.json`.
 Optional `config` input; default is repo-root `agentsmd.config.json`.
 when present. See [GitHub Action usage](docs/github-action-usage.md) for
