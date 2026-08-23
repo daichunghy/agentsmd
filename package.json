@@ -1,5 +1,5 @@
 {
-  "name": "agentsmd",
+  "name": "@daichunghy/agentsmd",
   "version": "0.1.0-alpha.2",
   "description": "One source of truth for AI agent instructions — linted, wired, scored.",
   "license": "MIT",

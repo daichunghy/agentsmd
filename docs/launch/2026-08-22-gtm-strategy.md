@@ -52,8 +52,9 @@ design spec (same date).
 
 ### Phase 0 — Destination polish (runs during build weeks 1–3)
 
-1. npm `agentsmd` published as `0.1.0-alpha` in week 1 (name hold).
-2. README v1: hero demo (asciinema or GIF ≤ 15 s), `npx agentsmd doctor`
+1. npm `@daichunghy/agentsmd` published as `0.1.0-alpha` in week 1 (name hold;
+   unscoped `agentsmd` blocked by `agents-md` similarity).
+2. README v1: hero demo (asciinema or GIF ≤ 15 s), `npx @daichunghy/agentsmd doctor`
    in the first screen, badges, emoji sections, comparison table vs
    agents-lint / agent-sync / aicfg / @reaatech kit, wiring guides per
    tool (Claude Code / Gemini CLI / Copilot pages — these target the

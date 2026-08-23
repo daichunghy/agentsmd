@@ -64,9 +64,9 @@ badge. The Action needs `contents: write` for that job only.
 ## Local equivalent
 
 ```sh
-npx agentsmd doctor
-npx agentsmd lint --json
-npx agentsmd score --json
+npx @daichunghy/agentsmd doctor
+npx @daichunghy/agentsmd lint --json
+npx @daichunghy/agentsmd score --json
 ```
 
 The npm registry package is not published yet; from a clone, `npm run build`

@@ -22,7 +22,7 @@ node dist/main.js doctor
 Intended later (will fail on a clean machine today):
 
 ```sh
-npx agentsmd doctor
+npx @daichunghy/agentsmd doctor
 ```
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
@@ -62,7 +62,7 @@ node dist/main.js lint            # find rot
 node dist/main.js score           # 0–100 instruction health
 ```
 
-After `npm install && npm run build`. `npx agentsmd …` is the same once the
+After `npm install && npm run build`. `npx @daichunghy/agentsmd …` is the same once the
 registry package exists. Commands other than `--help`/`--version` need a git
 repository.
 

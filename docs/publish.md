@@ -1,7 +1,9 @@
 # How to publish agentsmd (simple)
 
 The CLI is not on npm until you finish these steps once. After that,
-`npx agentsmd doctor` works on any computer.
+`npx @daichunghy/agentsmd doctor` works on any computer. (The unscoped name
+`agentsmd` is blocked by npm's name-similarity rule against the existing
+`agents-md` package, so the scoped name is the published form.)
 
 ## 1. Create a free npm account
 
