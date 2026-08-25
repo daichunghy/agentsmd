@@ -1,7 +1,7 @@
 {
   "name": "@daichunghy/agentsmd",
   "version": "0.1.0-alpha.3",
-  "description": "One source of truth for AI agent instructions \u2014 linted, wired, scored.",
+  "description": "One source of truth for AI agent instructions — linted, wired, scored.",
   "license": "MIT",
   "author": "daichunghy",
   "publishConfig": {
