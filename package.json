@@ -1,7 +1,7 @@
 {
   "name": "@daichunghy/agentsmd",
   "version": "0.1.0-alpha.3",
-  "description": "One source of truth for AI agent instructions — linted, wired, scored.",
+  "description": "One source of truth for AI agent instructions \u2014 linted, wired, scored.",
   "license": "MIT",
   "author": "daichunghy",
   "publishConfig": {
@@ -37,7 +37,8 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build",
-    "verify": "npm run typecheck && npm run build && npm run build:action && npm run test"
+    "verify": "npm run typecheck && npm run build && npm run build:action && npm run test",
+    "test:windows-pack": "node scripts/windows-pack-smoke.js"
   },
   "keywords": [
     "agents-md",
