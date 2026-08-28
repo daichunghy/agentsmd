@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>agentsmd Studio — Live AGENTS.md Health, Wiring & Badge Generator</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --primary: #2f81f7;
+      --primary-hover: #58a6ff;
+      --success: #238636;
+      --success-text: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --code-bg: #090d13;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Calibri", "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 11pt;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #1f6feb, #238636);
+      color: white;
+      font-weight: bold;
+      font-size: 14pt;
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+
+    h1 {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    h2 {
+      font-size: 13pt;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 10.5pt;
+    }
+
+    .header-links a {
+      color: var(--primary-hover);
+      text-decoration: none;
+      font-size: 10.5pt;
+      margin-left: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-links a:hover {
+      text-decoration: underline;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      background: #21262d;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 10pt;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: #30363d;
+      border-color: #8b949e;
+    }
+
+    button.primary {
+      background: var(--success);
+      border-color: #2ea043;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    button.primary:hover {
+      background: #2ea043;
+    }
+
+    textarea {
+      width: 100%;
+      height: 480px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      color: #c9d1d9;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 10pt;
+      line-height: 1.45;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .score-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #090d13;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .score-number-box {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .score-val {
+      font-size: 32pt;
+      font-weight: 800;
+      color: var(--success-text);
+      line-height: 1;
+    }
+
+    .score-max {
+      font-size: 12pt;
+      color: var(--text-muted);
+    }
+
+    .score-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+      margin-left: 24px;
+    }
+
+    .metric-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .metric-name {
+      font-size: 9pt;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 11pt;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10.5pt;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: #ffffff;
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .finding-item {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border-left: 4px solid;
+      background: #090d13;
+      font-size: 10pt;
+    }
+
+    .finding-item.error {
+      border-left-color: var(--danger);
+    }
+
+    .finding-item.warning {
+      border-left-color: var(--warning);
+    }
+
+    .finding-item.clean {
+      border-left-color: var(--success);
+      color: var(--success-text);
+    }
+
+    .finding-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .finding-msg {
+      color: var(--text-muted);
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: "Consolas", monospace;
+      font-size: 9.5pt;
+      color: #c9d1d9;
+      position: relative;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 8.5pt;
+      padding: 4px 8px;
+    }
+
+    .badge-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #090d13;
+      border-radius: 6px;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 10pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo-badge">agentsmd</div>
+        <div>
+          <h1>agentsmd Studio</h1>
+          <div class="subtitle">Real-time AGENTS.md Health Audit, Wiring & MCP Generator</div>
+        </div>
+      </div>
+      <div class="header-links">
+        <a href="https://github.com/daichunghy/agentsmd" target="_blank">GitHub Repo</a>
+        <a href="https://www.npmjs.com/package/@daichunghy/agentsmd" target="_blank">npm Registry</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left Column: Editor -->
+      <div class="card">
+        <div class="toolbar">
+          <h2>AGENTS.md Source</h2>
+          <div class="btn-group">
+            <button onclick="loadTemplate('standard')">Standard</button>
+            <button onclick="loadTemplate('monorepo')">Monorepo</button>
+            <button onclick="clearText()">Clear</button>
+          </div>
+        </div>
+        <textarea id="editor" oninput="analyze()" placeholder="# Project AI Agent Rules&#10;&#10;## Setup&#10;npm install&#10;&#10;## Build&#10;npm run build&#10;&#10;## Test&#10;npm test&#10;&#10;## Style&#10;Follow strict TypeScript, avoid any."></textarea>
+      </div>
+
+      <!-- Right Column: Diagnostics & Wiring -->
+      <div class="card">
+        <div class="score-banner">
+          <div class="score-number-box">
+            <span id="scoreNum" class="score-val">100</span>
+            <span class="score-max">/100</span>
+          </div>
+          <div class="score-metrics">
+            <div class="metric-chip">
+              <div class="metric-name">Coverage</div>
+              <div id="metricCoverage" class="metric-value">30/30</div>
+            </div>
+            <div class="metric-chip">
+              <div class="metric-name">Freshness</div>
+              <div id="metricFreshness" class="metric-value">30/30</div>
+            </div>
+            <div class="metric-chip">
+              <div class="metric-name">Wiring</div>
+              <div id="metricWiring" class="metric-value">25/25</div>
+            </div>
+            <div class="metric-chip">
+              <div class="metric-name">Budget</div>
+              <div id="metricSize" class="metric-value">15/15</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('findings')">Findings (<span id="findingCount">0</span>)</div>
+          <div class="tab" onclick="switchTab('wiring')">1-Click Wiring</div>
+          <div class="tab" onclick="switchTab('badge')">Badge & JSON</div>
+          <div class="tab" onclick="switchTab('mcp')">MCP Setup</div>
+        </div>
+
+        <!-- Tab 1: Findings -->
+        <div id="tab-findings" class="tab-content active">
+          <div id="findingsList" class="findings-list"></div>
+        </div>
+
+        <!-- Tab 2: Wiring -->
+        <div id="tab-wiring" class="tab-content">
+          <div style="margin-bottom: 8px; font-weight:600; font-size:10pt;">Claude Code (CLAUDE.md stub):</div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copySnippet('claudeStub')">Copy</button>
+            <span id="claudeStub">@AGENTS.md</span>
+          </div>
+
+          <div style="margin-bottom: 8px; font-weight:600; font-size:10pt;">Gemini CLI (.gemini/settings.json):</div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copySnippet('geminiConfig')">Copy</button>
+            <span id="geminiConfig">{ "context": { "fileName": ["AGENTS.md"] } }</span>
+          </div>
+
+          <div style="margin-bottom: 8px; font-weight:600; font-size:10pt;">GitHub Copilot (.github/copilot-instructions.md):</div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copySnippet('copilotStub')">Copy</button>
+            <span id="copilotStub"><!-- Managed copy generated by agentsmd sync -->
+# Copilot Instructions
+See AGENTS.md for the authoritative project guidelines.</span>
+          </div>
+        </div>
+
+        <!-- Tab 3: Badge & Export -->
+        <div id="tab-badge" class="tab-content">
+          <div class="badge-preview">
+            <span style="font-size:10pt; color:var(--text-muted);">Markdown Badge:</span>
+            <img id="badgeImg" src="https://img.shields.io/badge/agentsmd-100%2F100-brightgreen" alt="agentsmd score badge" />
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copySnippet('badgeMarkdown')">Copy</button>
+            <span id="badgeMarkdown">[![agentsmd health](https://img.shields.io/badge/agentsmd-100%2F100-brightgreen)](https://github.com/daichunghy/agentsmd)</span>
+          </div>
+
+          <div style="margin-top:14px; margin-bottom:8px; font-weight:600; font-size:10pt;">Canonical Score JSON:</div>
+          <div class="code-block" style="max-height: 180px; overflow-y: auto;">
+            <button class="copy-btn" onclick="copySnippet('jsonReport')">Copy</button>
+            <span id="jsonReport">{}</span>
+          </div>
+        </div>
+
+        <!-- Tab 4: MCP Setup -->
+        <div id="tab-mcp" class="tab-content">
+          <div style="font-size:10pt; color:var(--text-muted); margin-bottom:12px;">
+            Add agentsmd MCP server to Claude Desktop, Cursor, or Antigravity:
+          </div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copySnippet('mcpConfig')">Copy</button>
+            <span id="mcpConfig">{
+  "mcpServers": {
+    "agentsmd": {
+      "command": "npx",
+      "args": ["@daichunghy/agentsmd", "mcp"]
+    }
+  }
+}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      agentsmd · Deterministic AI instruction linting, scoring & wiring · Open source by <a href="https://github.com/daichunghy" style="color:var(--primary-hover); text-decoration:none;">@daichunghy</a>
+    </footer>
+  </div>
+
+  <script>
+    const TEMPLATES = {
+      standard: `# Project AI Agent Instructions
+
+## Setup
+- Install dependencies: \`npm install\`
+- Node version: \`>= 18\`
+
+## Build
+- Build TypeScript: \`npm run build\`
+
+## Test
+- Run unit test suite: \`npm test\`
+- Full verification: \`npm run verify\`
+
+## Style & Architecture
+- Strict TypeScript, no \`any\`
+- Deterministic pure evaluators
+- Keep context instructions concise and actionable`,
+
+      monorepo: `# Monorepo AI Agent Guidelines
+
+## Setup
+- Clean install: \`pnpm install --frozen-lockfile\`
+
+## Build
+- Build all packages: \`pnpm turbo build\`
+
+## Test
+- Run unit tests: \`pnpm turbo test\`
+- Lint codebase: \`pnpm turbo lint\`
+
+## Conventions & Rules
+- Do not add cross-package direct dependencies without updating workspace configuration.
+- Base policy is authoritative; untrusted PR branches cannot alter governance rules.`
+    };
+
+    function loadTemplate(key) {
+      document.getElementById('editor').value = TEMPLATES[key];
+      analyze();
+    }
+
+    function clearText() {
+      document.getElementById('editor').value = '';
+      analyze();
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const tabIdx = ['findings', 'wiring', 'badge', 'mcp'].indexOf(name);
+      if (tabIdx >= 0) {
+        document.querySelectorAll('.tab')[tabIdx].classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+      }
+    }
+
+    function copySnippet(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      });
+    }
+
+    function analyze() {
+      const text = document.getElementById('editor').value;
+      const findings = [];
+      let coverageScore = 0;
+      let freshnessScore = 30;
+      let wiringScore = 25;
+      let sizeScore = 15;
+
+      const lines = text.split('\n');
+      const lower = text.toLowerCase();
+
+      // Coverage Check (30 pts)
+      const hasSetup = /##.*(setup|install)/i.test(text);
+      const hasBuild = /##.*(build|compile)/i.test(text);
+      const hasTest = /##.*(test|verify|check)/i.test(text);
+      const hasStyle = /##.*(style|convention|architect|rule)/i.test(text);
+
+      coverageScore = (hasSetup ? 8 : 0) + (hasBuild ? 8 : 0) + (hasTest ? 8 : 0) + (hasStyle ? 6 : 0);
+
+      if (!hasSetup) findings.push({ rule: 'coverage', severity: 'warning', msg: 'Missing ## Setup / Install section' });
+      if (!hasBuild) findings.push({ rule: 'coverage', severity: 'warning', msg: 'Missing ## Build section' });
+      if (!hasTest) findings.push({ rule: 'coverage', severity: 'warning', msg: 'Missing ## Test section' });
+      if (!hasStyle) findings.push({ rule: 'coverage', severity: 'warning', msg: 'Missing ## Style / Conventions section' });
+
+      // Size / Budget Check (15 pts)
+      const byteSize = new Blob([text]).size;
+      const lineCount = lines.length;
+      if (byteSize > 32768) {
+        sizeScore = 0;
+        findings.push({ rule: 'codex-budget-overflow', severity: 'error', msg: \`Instructions exceed 32 KiB cap (\${Math.round(byteSize/1024)} KiB). Codex will silently truncate this file!\` });
+      } else if (lineCount > 250) {
+        sizeScore = 10;
+        findings.push({ rule: 'claude-length-warn', severity: 'warning', msg: \`Instructions are \${lineCount} lines (recommended < 200 lines for Claude context preservation).\` });
+      }
+
+      // Hygiene Checks
+      if (/(?:api[_-]?key|secret|ghp_[a-zA-Z0-9]{20,}|sk-[a-zA-Z0-9]{20,})/i.test(text)) {
+        findings.push({ rule: 'secret-like', severity: 'error', msg: 'Potential hardcoded token or secret detected in instructions.' });
+      }
+
+      if (/(?:TODO|FIXME|XXX)/i.test(text)) {
+        findings.push({ rule: 'todo-rot', severity: 'warning', msg: 'TODO/FIXME crust detected. AI agents may execute unrefined comments literally.' });
+      }
+
+      if (/(?:\/Users\/|C:\\\\|[a-zA-Z]:\\\\)/i.test(text)) {
+        findings.push({ rule: 'absolute-path-portability', severity: 'warning', msg: 'Absolute OS path detected. Use repository-relative paths.' });
+      }
+
+      // Deductions
+      const errorCount = findings.filter(f => f.severity === 'error').length;
+      const warnCount = findings.filter(f => f.severity === 'warning').length;
+      freshnessScore = Math.max(0, 30 - 10 * errorCount - 3 * warnCount);
+
+      const totalScore = coverageScore + freshnessScore + wiringScore + sizeScore;
+
+      // Update UI
+      document.getElementById('scoreNum').innerText = totalScore;
+      document.getElementById('metricCoverage').innerText = \`\${coverageScore}/30\`;
+      document.getElementById('metricFreshness').innerText = \`\${freshnessScore}/30\`;
+      document.getElementById('metricWiring').innerText = \`\${wiringScore}/25\`;
+      document.getElementById('metricSize').innerText = \`\${sizeScore}/15\`;
+      document.getElementById('findingCount').innerText = findings.length;
+
+      // Score color
+      const scoreEl = document.getElementById('scoreNum');
+      if (totalScore >= 85) scoreEl.style.color = 'var(--success-text)';
+      else if (totalScore >= 60) scoreEl.style.color = 'var(--warning)';
+      else scoreEl.style.color = 'var(--danger)';
+
+      // Render Findings
+      const listEl = document.getElementById('findingsList');
+      listEl.innerHTML = '';
+      if (findings.length === 0) {
+        listEl.innerHTML = \`<div class="finding-item clean">
+          <div class="finding-header">Instruction Health: Clean</div>
+          <div class="finding-msg">No issues found. Your AGENTS.md satisfies all coverage, budget, and hygiene rules.</div>
+        </div>\`;
+      } else {
+        findings.forEach(f => {
+          const item = document.createElement('div');
+          item.className = \`finding-item \${f.severity}\`;
+          item.innerHTML = \`<div class="finding-header">[\${f.rule}] \${f.severity.toUpperCase()}</div>
+            <div class="finding-msg">\${f.msg}</div>\`;
+          listEl.appendChild(item);
+        });
+      }
+
+      // Badge & JSON
+      const badgeColor = totalScore >= 85 ? 'brightgreen' : totalScore >= 60 ? 'yellow' : 'red';
+      const badgeUrl = \`https://img.shields.io/badge/agentsmd-\${totalScore}%2F100-\${badgeColor}\`;
+      document.getElementById('badgeImg').src = badgeUrl;
+      document.getElementById('badgeMarkdown').innerText = \`[![agentsmd health](\${badgeUrl})](https://github.com/daichunghy/agentsmd)\`;
+
+      const reportJson = {
+        schemaVersion: "1.0.0",
+        score: totalScore,
+        breakdown: {
+          coverage: coverageScore,
+          freshness: freshnessScore,
+          wiring: wiringScore,
+          size: sizeScore
+        },
+        findings: findings
+      };
+      document.getElementById('jsonReport').innerText = JSON.stringify(reportJson, null, 2);
+    }
+
+    // Init with standard template
+    loadTemplate('standard');
+  </script>
+</body>
+</html>
