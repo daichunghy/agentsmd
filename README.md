@@ -49,6 +49,8 @@ agentsmd keeps `AGENTS.md` the single source, then:
   `CLAUDE.md` stub (`@AGENTS.md` import), Gemini `context.fileName` config;
   **never duplicates content**, always idempotent
 - `agentsmd score` — 0–100 with a versioned JSON schema, badge-ready
+- `agentsmd mcp` — Model Context Protocol (MCP) stdio server exposing doctor,
+  lint, score, and instruction loader directly to Claude Desktop, Cursor, Antigravity, and OpenCode
 - Zero runtime dependencies · TypeScript strict · deterministic output
   (repeat runs are byte-identical)
 
@@ -60,6 +62,7 @@ node dist/main.js doctor          # see what each agent tool reads today
 node dist/main.js sync            # wire Claude Code + Gemini CLI to AGENTS.md
 node dist/main.js lint            # find rot
 node dist/main.js score           # 0–100 instruction health
+node dist/main.js mcp             # start MCP stdio server
 ```
 
 After `npm install && npm run build`. `npx @daichunghy/agentsmd …` is the same once the
@@ -93,6 +96,29 @@ gemini-cli: absent
 
 `sync --adopt` wraps an existing `CLAUDE.md` without deleting a single line of
 your content. Run `sync` twice — the second run changes nothing.
+
+## 🧩 Model Context Protocol (MCP)
+
+`agentsmd` runs as an MCP stdio server to let agents verify and load instructions in real-time.
+
+Add to your `claude_desktop_config.json` or Cursor / Antigravity MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "agentsmd": {
+      "command": "npx",
+      "args": ["@daichunghy/agentsmd", "mcp"]
+    }
+  }
+}
+```
+
+Exposes tools:
+- `agentsmd_doctor` — verify tool instruction wiring
+- `agentsmd_lint` — check dead paths, dead commands, and instruction sprawl
+- `agentsmd_score` — instruction health score (0–100) and actionable deductions
+- `agentsmd_get_instructions` — reads clean repository instructions for the agent
 
 ## 📏 Rules
 

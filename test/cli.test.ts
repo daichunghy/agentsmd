@@ -51,6 +51,7 @@ describe("cli", () => {
       ["doctor", "Usage: agentsmd doctor"],
       ["sync", "Usage: agentsmd sync"],
       ["score", "Usage: agentsmd score"],
+      ["mcp", "Usage: agentsmd mcp"],
     ];
     for (const [cmd, usage] of cases) {
       const { code, stdout } = await captureIo(() => runCli([cmd, "--help"]));

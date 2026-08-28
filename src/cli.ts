@@ -24,6 +24,7 @@ Commands:
   lint     Find instruction rot (dead paths, sprawl, budgets, …)
   sync     Wire Claude Code and Gemini CLI to AGENTS.md
   score    Score instruction health 0–100
+  mcp      Start Model Context Protocol (MCP) server for AI agents
 
 Flags:
   --json            Canonical JSON output (init, doctor, lint, score)
@@ -147,6 +148,9 @@ export async function runCli(argv: string[]): Promise<number> {
   if (cmd === "score") {
     return scoreCommand(argv.slice(1));
   }
+  if (cmd === "mcp") {
+    return mcpCommand(argv.slice(1));
+  }
   process.stderr.write(`unknown command: ${cmd}\n`);
   return 2;
 }
@@ -205,6 +209,7 @@ const COMMAND_ARGS: Record<string, CommandArgSpec> = {
   doctor: { flags: ["--json", "-h", "--help"] },
   sync: { flags: ["--adopt", "--copilot-copy", "-h", "--help"] },
   score: { flags: ["--json", "-h", "--help"], valueFlags: ["--report"] },
+  mcp: { flags: ["-h", "--help"] },
 };
 
 /**
@@ -369,3 +374,25 @@ function lintCommand(args: string[]): number {
   process.stdout.write(out);
   return exitCodeFor(findings, ctxOrErr.ctx.inv.config.failOn);
 }
+
+const MCP_HELP = `\
+Usage: agentsmd mcp
+
+Start the Model Context Protocol (MCP) server over stdio for AI agents
+(Claude Desktop, Cursor, Antigravity, OpenCode, Cline).
+
+Options:
+  -h, --help Show this help
+`;
+
+async function mcpCommand(args: string[]): Promise<number> {
+  if (wantsHelp(args)) {
+    process.stdout.write(MCP_HELP);
+    return 0;
+  }
+  const invalid = validateArgs("mcp", args);
+  if (invalid !== undefined) return usageError(invalid);
+  const { runMcpServer } = await import("./mcp.js");
+  return runMcpServer();
+}
+
