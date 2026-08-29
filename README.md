@@ -5,24 +5,27 @@
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Status:** public alpha (`0.1.0-alpha.1`). Not on npm yet.
+**Status (2026-08-30):** public alpha. The latest GitHub release is
+`v0.1.0-alpha.2`; the npm `alpha` dist-tag resolves
+`@daichunghy/agentsmd@0.1.0-alpha.4`. No external user or pilot is verified.
 
 [![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
 
-Until the package is published, clone and build (needs a git repo):
+For a packaged first run, use the public npm alpha inside a git repository:
 
 ```sh
-git clone https://github.com/daichunghy/agentsmd.git
+npm install --save-exact @daichunghy/agentsmd@alpha
+npx @daichunghy/agentsmd@alpha doctor
+```
+
+To reproduce the latest GitHub release from source (needs a git repo):
+
+```sh
+git clone --branch v0.1.0-alpha.2 https://github.com/daichunghy/agentsmd.git
 cd agentsmd
 npm install
 npm run build
 node dist/main.js doctor
-```
-
-Intended later (will fail on a clean machine today):
-
-```sh
-npx @daichunghy/agentsmd doctor
 ```
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
@@ -65,9 +68,8 @@ node dist/main.js score           # 0–100 instruction health
 node dist/main.js mcp             # start MCP stdio server
 ```
 
-After `npm install && npm run build`. `npx @daichunghy/agentsmd …` is the same once the
-registry package exists. Commands other than `--help`/`--version` need a git
-repository.
+After the source build, `node dist/main.js …` is the local path. Commands other
+than `--help`/`--version` need a git repository.
 
 `init --config` also writes `agentsmd.config.json` when missing.
 `init --force` overwrites those files with the starter. `sync` still
@@ -189,4 +191,3 @@ On Windows, `npm pack` installs package bins via `.cmd` shims. A Unix shebang (`
 - **Supported:** `npx <bin>`, `npm exec -- <bin>`, and the generated `.cmd` shim after `npm install -g` from the tarball.
 - **Limitation:** running the raw bin path as a shell script (`./bin/foo`) requires a Unix-like shell; use `node path/to/bin` or the npm shim instead.
 - **Process test:** lint/sync from the packed tarball should be invoked via `npm exec` / `npx` so path separators and shims match Windows.
-
