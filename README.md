@@ -5,7 +5,10 @@
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Status:** public alpha (`0.1.0-alpha.1`). Not on npm yet.
+**Status (2026-09-01):** public pre-release. GitHub's latest release is
+`v0.1.0-alpha.2`; the published npm package is
+[`@daichunghy/agentsmd@0.1.0-alpha.4`](https://www.npmjs.com/package/%40daichunghy/agentsmd).
+The repository has 1 star and 1 fork; no external downstream usage is verified.
 
 [![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
 
