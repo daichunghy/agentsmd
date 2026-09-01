@@ -12,20 +12,21 @@ The repository has 1 star and 1 fork; no external downstream usage is verified.
 
 [![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
 
-Until the package is published, clone and build (needs a git repo):
+Install the published alpha (Node.js 18+):
+
+```sh
+npm install --global @daichunghy/agentsmd@alpha
+agentsmd doctor
+```
+
+To verify from source instead:
 
 ```sh
 git clone https://github.com/daichunghy/agentsmd.git
 cd agentsmd
 npm install
-npm run build
+npm run verify
 node dist/main.js doctor
-```
-
-Intended later (will fail on a clean machine today):
-
-```sh
-npx @daichunghy/agentsmd doctor
 ```
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
@@ -68,9 +69,8 @@ node dist/main.js score           # 0–100 instruction health
 node dist/main.js mcp             # start MCP stdio server
 ```
 
-After `npm install && npm run build`. `npx @daichunghy/agentsmd …` is the same once the
-registry package exists. Commands other than `--help`/`--version` need a git
-repository.
+The published package also works with `npx @daichunghy/agentsmd@alpha …`. Commands other than
+`--help`/`--version` need a git repository.
 
 `init --config` also writes `agentsmd.config.json` when missing.
 `init --force` overwrites those files with the starter. `sync` still
