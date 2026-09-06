@@ -5,13 +5,21 @@
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Status (2026-08-30):** public alpha. The latest GitHub release is
-`v0.1.0-alpha.2`; the npm `alpha` dist-tag resolves
-`@daichunghy/agentsmd@0.1.0-alpha.4`. No external user or pilot is verified.
+**Status (2026-09-01):** public pre-release. GitHub's latest release is
+`v0.1.0-alpha.2`; the published npm package is
+[`@daichunghy/agentsmd@0.1.0-alpha.4`](https://www.npmjs.com/package/%40daichunghy/agentsmd).
+The repository has 1 star and 1 fork; no external downstream usage is verified.
 
 [![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
 
-For a packaged first run, use the public npm alpha inside a git repository:
+Install the published alpha (Node.js 18+):
+
+```sh
+npm install --global @daichunghy/agentsmd@alpha
+agentsmd doctor
+```
+
+To verify from source instead:
 
 ```sh
 npm install --save-exact @daichunghy/agentsmd@alpha
@@ -24,7 +32,7 @@ To reproduce the latest GitHub release from source (needs a git repo):
 git clone --branch v0.1.0-alpha.2 https://github.com/daichunghy/agentsmd.git
 cd agentsmd
 npm install
-npm run build
+npm run verify
 node dist/main.js doctor
 ```
 
@@ -68,8 +76,8 @@ node dist/main.js score           # 0–100 instruction health
 node dist/main.js mcp             # start MCP stdio server
 ```
 
-After the source build, `node dist/main.js …` is the local path. Commands other
-than `--help`/`--version` need a git repository.
+The published package also works with `npx @daichunghy/agentsmd@alpha …`. Commands other than
+`--help`/`--version` need a git repository.
 
 `init --config` also writes `agentsmd.config.json` when missing.
 `init --force` overwrites those files with the starter. `sync` still
