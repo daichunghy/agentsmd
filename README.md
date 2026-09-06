@@ -22,7 +22,14 @@ agentsmd doctor
 To verify from source instead:
 
 ```sh
-git clone https://github.com/daichunghy/agentsmd.git
+npm install --save-exact @daichunghy/agentsmd@alpha
+npx @daichunghy/agentsmd@alpha doctor
+```
+
+To reproduce the latest GitHub release from source (needs a git repo):
+
+```sh
+git clone --branch v0.1.0-alpha.2 https://github.com/daichunghy/agentsmd.git
 cd agentsmd
 npm install
 npm run verify
@@ -192,4 +199,3 @@ On Windows, `npm pack` installs package bins via `.cmd` shims. A Unix shebang (`
 - **Supported:** `npx <bin>`, `npm exec -- <bin>`, and the generated `.cmd` shim after `npm install -g` from the tarball.
 - **Limitation:** running the raw bin path as a shell script (`./bin/foo`) requires a Unix-like shell; use `node path/to/bin` or the npm shim instead.
 - **Process test:** lint/sync from the packed tarball should be invoked via `npm exec` / `npx` so path separators and shims match Windows.
-
