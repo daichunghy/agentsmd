@@ -39,13 +39,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: daichunghy/agentsmd@v0.1.0-alpha.3
+      - uses: daichunghy/agentsmd@v0.1.0-alpha.4
         with:
           fail-on: error
           badge-write: false
 ```
 
 Pin the tag or a commit SHA. There is no GitHub Marketplace listing.
+
+### Custom config file
+
+Point `config` at any repository-relative JSON file when the default
+repo-root `agentsmd.config.json` is not what the job should load. The
+following consumer workflow lints with a stricter ruleset kept outside the
+repo root:
+
+```yaml
+jobs:
+  instruction-health-strict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: daichunghy/agentsmd@v0.1.0-alpha.4
+        with:
+          fail-on: error
+          config: .github/agentsmd.strict.json
+```
+
+The custom filename is loaded as-is: a missing file fails the job closed
+rather than silently falling back to defaults, and its `rules` severities
+change which findings can fail the check.
 
 ## Weekly rot (copy into *your* repo)
 
@@ -69,5 +92,5 @@ npx @daichunghy/agentsmd lint --json
 npx @daichunghy/agentsmd score --json
 ```
 
-The npm registry package is not published yet; from a clone, `npm run build`
-then `node dist/main.js` is the local equivalent.
+`npx` resolves the published `0.1.0-alpha.4` package. From a clone,
+`npm run build` then `node dist/main.js` is the local equivalent.
