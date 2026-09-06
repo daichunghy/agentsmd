@@ -5,24 +5,35 @@
 [![CI](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml/badge.svg)](https://github.com/daichunghy/agentsmd/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**Status:** public alpha — `@daichunghy/agentsmd@0.1.0-alpha.4` is on GitHub and npm (`alpha` and `latest` dist-tags both resolve it; the `v0.1.0-alpha.4` tag matches the tarball). 1 star, 1 fork on 2026-09-06; no verified external consumer yet.
+**Status (2026-09-01):** public pre-release. GitHub's latest release is
+`v0.1.0-alpha.2`; the published npm package is
+[`@daichunghy/agentsmd@0.1.0-alpha.4`](https://www.npmjs.com/package/%40daichunghy/agentsmd).
+The repository has 1 star and 1 fork; no external downstream usage is verified.
 
 [![demo](docs/examples/demo.svg)](docs/examples/demo.svg)
 
-Until the package is published, clone and build (needs a git repo):
+Install the published alpha (Node.js 18+):
 
 ```sh
-git clone https://github.com/daichunghy/agentsmd.git
-cd agentsmd
-npm install
-npm run build
-node dist/main.js doctor
+npm install --global @daichunghy/agentsmd@alpha
+agentsmd doctor
 ```
 
-Intended later (will fail on a clean machine today):
+To verify from source instead:
 
 ```sh
-npx @daichunghy/agentsmd doctor
+npm install --save-exact @daichunghy/agentsmd@alpha
+npx @daichunghy/agentsmd@alpha doctor
+```
+
+To reproduce the latest GitHub release from source (needs a git repo):
+
+```sh
+git clone --branch v0.1.0-alpha.2 https://github.com/daichunghy/agentsmd.git
+cd agentsmd
+npm install
+npm run verify
+node dist/main.js doctor
 ```
 
 Every AI coding agent reads a different instructions file: Codex, Cursor and
@@ -65,9 +76,8 @@ node dist/main.js score           # 0–100 instruction health
 node dist/main.js mcp             # start MCP stdio server
 ```
 
-After `npm install && npm run build`. `npx @daichunghy/agentsmd …` is the same once the
-registry package exists. Commands other than `--help`/`--version` need a git
-repository.
+The published package also works with `npx @daichunghy/agentsmd@alpha …`. Commands other than
+`--help`/`--version` need a git repository.
 
 `init --config` also writes `agentsmd.config.json` when missing.
 `init --force` overwrites those files with the starter. `sync` still
@@ -141,13 +151,13 @@ Severities configurable in `agentsmd.config.json`; `fail-on` sets the CI gate.
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: daichunghy/agentsmd@v0.1.0-alpha.4
+- uses: daichunghy/agentsmd@v0.1.0-alpha.3
   with:
     fail-on: error        # error | warning | never
     badge-write: false    # commit score.json to gh-pages for a badge
 ```
 
-No GitHub Marketplace listing. Pin `@v0.1.0-alpha.4` or a commit SHA.
+No GitHub Marketplace listing. Pin `@v0.1.0-alpha.3` or a commit SHA.
 Annotations on the exact lines, `score` output, canonical `score.json`.
 Optional `config` input; default is repo-root `agentsmd.config.json`.
 when present. See [GitHub Action usage](docs/github-action-usage.md) for
@@ -189,4 +199,3 @@ On Windows, `npm pack` installs package bins via `.cmd` shims. A Unix shebang (`
 - **Supported:** `npx <bin>`, `npm exec -- <bin>`, and the generated `.cmd` shim after `npm install -g` from the tarball.
 - **Limitation:** running the raw bin path as a shell script (`./bin/foo`) requires a Unix-like shell; use `node path/to/bin` or the npm shim instead.
 - **Process test:** lint/sync from the packed tarball should be invoked via `npm exec` / `npx` so path separators and shims match Windows.
-
